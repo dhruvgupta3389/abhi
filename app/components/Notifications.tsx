@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Bell, CheckCircle, AlertTriangle, Clock, User, Calendar } from 'lucide-react';
-import { useApp, Notification } from '../context/AppContext';
+import { Bell, CheckCircle, AlertTriangle, Clock, User, Calendar, Eye, AreaChart as MarkAsUnread } from 'lucide-react';
+import { useApp, Notification } from '../../context/AppContext';
 
 const Notifications: React.FC = () => {
   const { notifications, markNotificationRead, t } = useApp();
@@ -85,12 +85,12 @@ const Notifications: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Types</option>
-              <option value="admission_status">Admission Status</option>
-              <option value="bed_approval">Bed Approval</option>
-              <option value="supervisor_instruction">Supervisor Instruction</option>
-              <option value="high_risk_alert">High Risk Alert</option>
-              <option value="bed_request">Bed Request</option>
-              <option value="discharge_tracking">Discharge Tracking</option>
+              <option value="admission_status">{t('notification.admissionStatus')}</option>
+              <option value="bed_approval">{t('notification.bedApproval')}</option>
+              <option value="supervisor_instruction">{t('notification.supervisorInstruction')}</option>
+              <option value="high_risk_alert">{t('notification.highRiskAlert')}</option>
+              <option value="bed_request">{t('notification.bedRequest')}</option>
+              <option value="discharge_tracking">{t('notification.dischargeTracking')}</option>
             </select>
           </div>
           <div>
@@ -120,7 +120,7 @@ const Notifications: React.FC = () => {
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center">
-            <AlertTriangle className="w-6 h-6 text-orange-600 mr-2" />
+            <MarkAsUnread className="w-6 h-6 text-orange-600 mr-2" />
             <div>
               <p className="text-sm text-orange-600">Unread</p>
               <p className="text-2xl font-bold text-orange-800">{unreadCount}</p>
@@ -174,6 +174,14 @@ const Notifications: React.FC = () => {
                         {notification.title}
                       </h3>
                       <div className={`w-2 h-2 rounded-full ${getPriorityColor(notification.priority)}`}></div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(notification.type)}`}>
+                        {t(`notification.${notification.type}`)}
+                      </span>
+                      {notification.actionRequired && (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                          Action Required
+                        </span>
+                      )}
                     </div>
                     <p className={`text-sm ${!notification.read ? 'text-gray-800' : 'text-gray-600'} mb-3`}>
                       {notification.message}
@@ -187,17 +195,31 @@ const Notifications: React.FC = () => {
                         <User className="w-3 h-3" />
                         <span>{notification.userRole}</span>
                       </div>
+                      {notification.priority === 'critical' && (
+                        <div className="flex items-center space-x-1 text-red-600">
+                          <AlertTriangle className="w-3 h-3" />
+                          <span>Critical Priority</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                {!notification.read && (
-                  <button
-                    onClick={() => markNotificationRead(notification.id)}
-                    className="ml-4 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors"
-                  >
-                    Mark as Read
-                  </button>
-                )}
+                <div className="flex items-center space-x-2">
+                  {!notification.read && (
+                    <button
+                      onClick={() => markNotificationRead(notification.id)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      title="Mark as read"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  )}
+                  <div className="text-right">
+                    <div className={`text-xs ${!notification.read ? 'font-medium text-blue-600' : 'text-gray-500'}`}>
+                      {!notification.read ? 'Unread' : 'Read'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           ))
