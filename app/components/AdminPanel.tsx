@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Shield, Users, Plus, Edit, Trash2, Eye, EyeOff, Key, UserCheck, AlertTriangle, CheckCircle, LogOut, Clock } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 interface User {
   id: string;

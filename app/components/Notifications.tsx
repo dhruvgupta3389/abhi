@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Bell, CheckCircle, AlertTriangle, Clock, User, Calendar } from 'lucide-react';
-import { useApp, Notification } from '../../context/AppContext';
+import { useApp, Notification } from '../context/AppContext';
 
 const Notifications: React.FC = () => {
   const { notifications, markNotificationRead, t } = useApp();

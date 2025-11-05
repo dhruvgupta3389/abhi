@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Users, Guitar as Hospital, UserCheck, Eye, EyeOff, LogIn, Shield } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 interface LoginProps {
   onLogin: (role: 'anganwadi_worker' | 'supervisor' | 'hospital' | 'admin', userData: any) => void;

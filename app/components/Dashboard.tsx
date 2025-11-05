@@ -6,7 +6,7 @@ import {
   Activity, FileText, MapPin, UserCheck, Bell, Brain,
   Heart, Baby, Stethoscope, BarChart3
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const Dashboard: React.FC = () => {
   const { patients, visits, beds, notifications, userRole, t } = useApp();
@@ -234,7 +234,7 @@ const Dashboard: React.FC = () => {
             <p className="text-sm text-blue-700 mt-1">
               This system supports both English and Hindi languages for better accessibility.
               <br />
-              यह प्रणाली बेहतर पहुंच के लिए अंग्रेजी और हिंदी दोनों भाषाओं का समर्थन क��ती है।
+              यह प्रणाली बेहतर पहुंच के लिए अंग्रेजी और हिंदी दोनों भाषाओं का समर्थन करती है।
             </p>
           </div>
         </div>

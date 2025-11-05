@@ -5,7 +5,7 @@
 // They are fully functional placeholder implementations
 
 import React from 'react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const StubComponent = ({ name, icon: Icon }: { name: string; icon: React.ReactNode }) => (
   <div className="space-y-6">
@@ -101,7 +101,7 @@ export const SurveyManagement = () => StubComponent({ name: 'Survey Management',
 export const BedCoordination = () => StubComponent({ name: 'Bed Coordination', icon: <div>🛏️</div> });
 export const AdmissionTracking = () => StubComponent({ name: 'Admission Tracking', icon: <div>📍</div> });
 export const BedDashboard = () => StubComponent({ name: 'Bed Dashboard', icon: <div>📊</div> });
-export const TreatmentTracker = () => StubComponent({ name: 'Treatment Tracker', icon: <div>��</div> });
+export const TreatmentTracker = () => StubComponent({ name: 'Treatment Tracker', icon: <div>💊</div> });
 export const MedicalReports = () => StubComponent({ name: 'Medical Reports', icon: <div>📄</div> });
 export const BedDemandPrediction = () => StubComponent({ name: 'Bed Demand Prediction', icon: <div>🔮</div> });
 export const AIHealthPrediction = () => StubComponent({ name: 'AI Health Prediction', icon: <div>🤖</div> });
