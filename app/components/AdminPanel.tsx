@@ -97,7 +97,7 @@ const AdminPanel: React.FC = () => {
       try {
         const url = user ? `/api/auth/users/${user.id}` : '/api/auth/users';
         const method = user ? 'PUT' : 'POST';
-
+        
         const payload = {
           ...formData,
           createdBy: 'ADMIN001'
@@ -262,9 +262,7 @@ const AdminPanel: React.FC = () => {
                     <span>{user ? 'Updating...' : 'Creating...'}</span>
                   </>
                 ) : (
-                  <>
-                    <span>{user ? 'Update User' : 'Create User'}</span>
-                  </>
+                  <span>{user ? 'Update User' : 'Create User'}</span>
                 )}
               </button>
             </div>
@@ -307,93 +305,328 @@ const AdminPanel: React.FC = () => {
     );
   }
 
+  const activeUserCount = users.filter(u => u.is_active).length;
+  const inactiveUserCount = users.filter(u => !u.is_active).length;
+  const workerCount = users.filter(u => u.role === 'anganwadi_worker').length;
+  const supervisorCount = users.filter(u => u.role === 'supervisor').length;
+  const hospitalCount = users.filter(u => u.role === 'hospital').length;
+  const patientCount = patients.length;
+  const bedCount = beds.length;
+  const availableBeds = beds.filter(b => b.status === 'available').length;
+
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">System Administration</h2>
-            <p className="text-gray-600">Manage users, roles, and system access</p>
-          </div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">System Administration</h2>
+          <p className="text-gray-600 mt-1">Manage system, users, roles and configuration</p>
+        </div>
+        <button
+          onClick={logout}
+          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Logout</span>
+        </button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="flex border-b border-gray-200">
           <button
-            onClick={() => setShowAddForm(true)}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 px-6 py-4 text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
+              activeTab === 'overview'
+                ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
-            <Plus className="w-5 h-5" />
-            <span>Add New User</span>
+            <Home className="w-4 h-4" />
+            <span>Dashboard Overview</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`flex-1 px-6 py-4 text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
+              activeTab === 'users'
+                ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>User Management</span>
           </button>
         </div>
-
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
-            {error}
-          </div>
-        )}
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Employee ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Contact</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(user => (
-                <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                    <div className="text-sm text-gray-600">{user.email}</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{user.employee_id}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center w-fit space-x-1 ${getRoleColor(user.role)}`}>
-                      {getRoleIcon(user.role)}
-                      <span>{user.role.replace('_', ' ')}</span>
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{user.contact_number || '-'}</td>
-                  <td className="px-6 py-4">
-                    {user.is_active ? (
-                      <span className="flex items-center space-x-1 text-sm text-green-700">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Active</span>
-                      </span>
-                    ) : (
-                      <span className="flex items-center space-x-1 text-sm text-red-700">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span>Inactive</span>
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => setEditingUser(user)}
-                        className="text-blue-600 hover:text-blue-800 transition-colors"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors"
-                        title="Deactivate"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
+
+      {activeTab === 'overview' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">Total Users</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{users.length}</p>
+                  <p className="text-xs text-green-600 mt-2 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" /> {activeUserCount} Active
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">Active Patients</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{patientCount}</p>
+                  <p className="text-xs text-blue-600 mt-2 flex items-center">
+                    <Activity className="w-3 h-3 mr-1" /> Registered
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">Total Beds</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{bedCount}</p>
+                  <p className="text-xs text-green-600 mt-2 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" /> {availableBeds} Available
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium">System Status</p>
+                  <p className="text-3xl font-bold text-green-600 mt-2">Online</p>
+                  <p className="text-xs text-gray-500 mt-2 flex items-center">
+                    <Server className="w-3 h-3 mr-1" /> All systems operational
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Server className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">User Role Distribution</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Anganwadi Workers</span>
+                    <span className="text-sm font-bold text-gray-900">{workerCount}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full"
+                      style={{ width: `${users.length > 0 ? (workerCount / users.length) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Supervisors</span>
+                    <span className="text-sm font-bold text-gray-900">{supervisorCount}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{ width: `${users.length > 0 ? (supervisorCount / users.length) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Hospital Staff</span>
+                    <span className="text-sm font-bold text-gray-900">{hospitalCount}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-red-600 h-2 rounded-full"
+                      style={{ width: `${users.length > 0 ? (hospitalCount / users.length) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">System Information</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Admin User</span>
+                  <span className="text-sm font-medium text-gray-900">{currentUser?.name || 'Admin'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">User ID</span>
+                  <span className="text-sm font-medium text-gray-900">{currentUser?.employee_id}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Session Status</span>
+                  <span className="text-sm font-medium text-green-600 flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-1" /> Active
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Last Updated</span>
+                  <span className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString()}</span>
+                </div>
+                <div className="pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    System is operational and all components are running normally. Database connectivity is active.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Users</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Employee ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.slice(-5).reverse().map(user => (
+                    <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{user.employee_id}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                          {user.role.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {user.is_active ? (
+                          <span className="text-xs font-medium text-green-700 flex items-center">
+                            <CheckCircle className="w-4 h-4 mr-1" /> Active
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-red-700 flex items-center">
+                            <AlertTriangle className="w-4 h-4 mr-1" /> Inactive
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{new Date(user.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'users' && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
+              <p className="text-gray-600">Manage system users and their access controls</p>
+            </div>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add New User</span>
+            </button>
+          </div>
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+              {error}
+            </div>
+          )}
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Employee ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Contact</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(user => (
+                  <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm text-gray-600">{user.email}</div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{user.employee_id}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center w-fit space-x-1 ${getRoleColor(user.role)}`}>
+                        {getRoleIcon(user.role)}
+                        <span>{user.role.replace('_', ' ')}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{user.contact_number || '-'}</td>
+                    <td className="px-6 py-4">
+                      {user.is_active ? (
+                        <span className="flex items-center space-x-1 text-sm text-green-700">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Active</span>
+                        </span>
+                      ) : (
+                        <span className="flex items-center space-x-1 text-sm text-red-700">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>Inactive</span>
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => setEditingUser(user)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          title="Deactivate"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {showAddForm && <UserForm onClose={() => setShowAddForm(false)} />}
       {editingUser && <UserForm user={editingUser} onClose={() => setEditingUser(null)} />}
