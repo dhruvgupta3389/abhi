@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Ticket, Plus, Clock, CheckCircle, XCircle, AlertTriangle, MapPin, Users, Calendar, User, Eye, Phone } from 'lucide-react';
-import { useApp, AnganwadiVisitTicket } from '../../context/AppContext';
+import { useApp, AnganwadiVisitTicket } from '../context/AppContext';
 
 const AnganwadiVisitTickets: React.FC = () => {
   const { visitTickets, anganwadis, workers, addVisitTicket, updateVisitTicket, t } = useApp();
