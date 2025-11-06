@@ -71,8 +71,14 @@ const AdminPanel: React.FC = () => {
   };
 
   const UserForm = ({ user, onClose }: { user?: User; onClose: () => void }) => {
+    const generateEmployeeId = () => {
+      const timestamp = Date.now().toString().slice(-6);
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      return `EMP${timestamp}${random}`.substring(0, 12);
+    };
+
     const [formData, setFormData] = useState({
-      employeeId: user?.employee_id || '',
+      employeeId: user?.employee_id || generateEmployeeId(),
       username: user?.username || '',
       password: '',
       name: user?.name || '',
@@ -91,7 +97,7 @@ const AdminPanel: React.FC = () => {
       try {
         const url = user ? `/api/auth/users/${user.id}` : '/api/auth/users';
         const method = user ? 'PUT' : 'POST';
-        
+
         const payload = {
           ...formData,
           createdBy: 'ADMIN001'
@@ -130,20 +136,23 @@ const AdminPanel: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900">
               {user ? 'Edit User' : 'Add New User'}
             </h3>
+            {!user && <p className="text-sm text-gray-500 mt-1">Employee ID will be automatically generated</p>}
           </div>
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.employeeId}
-                  onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="EMP001"
-                  disabled={!!user}
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.employeeId}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                  />
+                  {!user && (
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 bg-white px-1">Auto-generated</span>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
