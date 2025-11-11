@@ -389,7 +389,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const t = (key: string, params?: any): string => {
     const translation = (translations[language] as any)[key] || key;
     if (params) {
-      return translation.replace(/\{(\w+)\}/g, (match, paramKey) => params[paramKey] || match);
+      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => params[paramKey] || match);
     }
     return translation;
   };
