@@ -70,6 +70,170 @@ export interface Notification {
   date: string;
 }
 
+// Additional exported domain types used by components
+export interface Anganwadi {
+  id: string;
+  name: string;
+  code: string;
+  location: {
+    area: string;
+    district: string;
+    state: string;
+    pincode?: string;
+    coordinates: { latitude: number; longitude: number };
+  };
+  supervisor: { name: string; contactNumber: string; employeeId: string };
+  capacity: { pregnantWomen: number; children: number };
+  facilities: string[];
+  coverageAreas: string[];
+  establishedDate: string;
+  isActive: boolean;
+}
+
+export interface Worker {
+  id: string;
+  employeeId: string;
+  name: string;
+  role: 'head' | 'supervisor' | 'helper' | 'asha';
+  anganwadiId?: string;
+  contactNumber: string;
+  address?: string;
+  assignedAreas: string[];
+  qualifications: string[];
+  workingHours: { start: string; end: string };
+  emergencyContact: { name: string; relation: string; contactNumber: string };
+  joinDate: string;
+  isActive: boolean;
+}
+
+export interface BedRequest {
+  id: string;
+  patientId: string;
+  requestedBy: string;
+  requestDate: string;
+  urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
+  medicalJustification: string;
+  currentCondition: string;
+  estimatedStayDuration: number;
+  specialRequirements?: string;
+  status: 'pending' | 'approved' | 'declined' | 'cancelled';
+  reviewedBy?: string;
+  reviewDate?: string;
+  reviewComments?: string;
+  hospitalReferral?: {
+    hospitalName: string;
+    contactNumber: string;
+    referralReason: string;
+    referralDate: string;
+    urgencyLevel: 'routine' | 'urgent' | 'emergency';
+  };
+}
+
+export interface SurveyReport {
+  id: string;
+  patientId: string;
+  date: string;
+  observations: string;
+  nutritionData: {
+    appetite: 'poor' | 'moderate' | 'good';
+    foodIntake: 'inadequate' | 'adequate' | 'excessive';
+    supplements: string[];
+  };
+  symptoms: string[];
+  recommendations: string[];
+  healthWorkerId: string;
+}
+
+export interface Visit {
+  id: string;
+  patientId: string;
+  healthWorkerId: string;
+  scheduledDate: string;
+  actualDate?: string;
+  status: 'scheduled' | 'completed' | 'missed' | 'rescheduled';
+  notes?: string;
+}
+
+export interface MedicalRecord {
+  id: string;
+  patientId: string;
+  date: string;
+  visitType: 'routine' | 'emergency' | 'follow_up' | 'admission' | 'discharge';
+  healthWorkerId: string;
+  vitals: {
+    weight: number;
+    height: number;
+    temperature?: number;
+    bloodPressure?: string;
+    pulse?: number;
+    respiratoryRate?: number;
+    oxygenSaturation?: number;
+  };
+  symptoms: string[];
+  diagnosis: string[];
+  treatment: string[];
+  medications: { name: string; dosage: string; frequency: string; duration: string }[];
+  nutritionAssessment: {
+    appetite: 'poor' | 'moderate' | 'good';
+    foodIntake: 'inadequate' | 'adequate' | 'excessive';
+    supplements: string[];
+    dietPlan?: string;
+  };
+  labResults?: {
+    hemoglobin?: number;
+    bloodSugar?: number;
+    proteinLevel?: number;
+  };
+  notes?: string;
+  nextVisitDate?: string;
+  followUpRequired: boolean;
+}
+
+export interface TreatmentTracker {
+  id: string;
+  patientId: string;
+  hospitalId: string;
+  admissionDate: string;
+  treatmentPlan: string[];
+  medicineSchedule: any[];
+  doctorRemarks: string[];
+  dailyProgress: { date: string; weight: number; appetite: 'poor' | 'moderate' | 'good'; notes: string }[];
+  labReports: any[];
+  dischargeDate?: string;
+  dischargeSummary?: {
+    finalWeight: number;
+    nextCheckupDate: string;
+    healthImprovement: string;
+    followUpInstructions: string[];
+  };
+}
+
+export interface MissedVisitTicket {
+  id: string;
+  patientId: string;
+  visitId: string;
+  dateReported: string;
+  reportedBy: string;
+  missedConditions: Record<string, boolean>;
+  attemptDetails: {
+    timeOfAttempt: string;
+    locationVisited: string;
+    contactMethod: 'home_visit' | 'phone_call' | 'center_visit' | string;
+  };
+  patientCondition: {
+    currentHealthStatus: string;
+    urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
+    visibleSymptoms: string[];
+    familyReportedConcerns: string[];
+  };
+  actionsTaken: string[];
+  followUpRequired: boolean;
+  nextAttemptDate: string;
+  supervisorNotified: boolean;
+  status: 'open' | 'in_progress' | 'resolved' | 'escalated';
+  escalationLevel: 'none' | 'anganwadi' | 'district' | 'state';
+}
+
 interface AppContextType {
   language: 'en' | 'hi';
   setLanguage: (lang: 'en' | 'hi') => void;
