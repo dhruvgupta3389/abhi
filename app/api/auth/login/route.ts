@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sign, type Secret } from 'jsonwebtoken';
 import { csvManager } from '@/lib/csvManager';
 
+function parseExpires(input: string | number | undefined): number {
+  if (typeof input === 'number' && isFinite(input)) return input;
+  const str = String(input ?? '').trim();
+  const match = /^(\d+)\s*([smhdwy])?$/i.exec(str);
+  if (!match) return 24 * 60 * 60; // default 24h
+  const value = parseInt(match[1], 10);
+  const unit = (match[2] || 's').toLowerCase();
+  switch (unit) {
+    case 's': return value;
+    case 'm': return value * 60;
+    case 'h': return value * 60 * 60;
+    case 'd': return value * 60 * 60 * 24;
+    case 'w': return value * 60 * 60 * 24 * 7;
+    case 'y': return value * 60 * 60 * 24 * 365;
+    default: return value;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -44,7 +62,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const secret: Secret = process.env.JWT_SECRET ?? 'default-secret';
+    const secret = process.env.JWT_SECRET ?? 'default-secret';
+    const expiresIn = parseExpires(process.env.JWT_EXPIRES_IN ?? '24h');
     const token = sign(
       {
         userId: user.id,
@@ -52,7 +71,7 @@ export async function POST(request: NextRequest) {
         role: user.role
       },
       secret,
-      { expiresIn: (process.env.JWT_EXPIRES_IN ?? '24h') as string }
+      { expiresIn }
     );
 
     console.log('✅ Login successful for:', user.name);
