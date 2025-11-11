@@ -86,7 +86,7 @@ const AIHealthPrediction: React.FC = () => {
                   <div className="p-3 bg-red-50 rounded">
                     <p className="text-xs font-medium text-red-700">Deficiencies:</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {selectedPatientData.nutritionalDeficiency.map((def, idx) => (
+                      {selectedPatientData.nutritionalDeficiency.map((def: string, idx: number) => (
                         <span key={idx} className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
                           {def}
                         </span>

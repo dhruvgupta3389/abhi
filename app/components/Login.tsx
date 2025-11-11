@@ -152,7 +152,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               Select Your Role
             </h2>
             <div className="space-y-4">
-              {Object.entries(roleConfigs).map(([role, config]) => {
+              {Object.entries(roleConfigs).map(([role, config]: [string, any]) => {
                 const RoleIcon = config.icon;
                 return (
                   <button
@@ -170,7 +170,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <div className="font-semibold text-lg">{config.title.replace(' Login', '')}</div>
                         <div className="text-sm opacity-90 mt-1">{config.subtitle}</div>
                         <div className="mt-3 grid grid-cols-1 gap-1">
-                          {config.features.slice(0, 3).map((feature, index) => (
+                          {config.features.slice(0, 3).map((feature: string, index: number) => (
                             <div key={index} className="text-xs opacity-75 flex items-center">
                               <div className="w-1 h-1 bg-current rounded-full mr-2"></div>
                               {feature}
