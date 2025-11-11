@@ -631,6 +631,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTreatmentTrackers([...treatmentTrackers, { ...tracker, id: `tracker-${Date.now()}` }]);
   };
 
+  const updateTreatmentTracker = async (id: string, updates: any) => {
+    setTreatmentTrackers(treatmentTrackers.map(tracker =>
+      tracker.id === id ? { ...tracker, ...updates } : tracker
+    ));
+  };
+
   useEffect(() => {
     const initializeApp = async () => {
       try {
