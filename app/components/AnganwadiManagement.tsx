@@ -88,7 +88,7 @@ const AnganwadiManagement: React.FC = () => {
                   <div>
                     <p className="text-xs font-medium text-gray-700 mb-2">Facilities</p>
                     <div className="flex flex-wrap gap-1">
-                      {anganwadi.facilities.slice(0, 2).map((facility, idx) => (
+                      {anganwadi.facilities.slice(0, 2).map((facility: string, idx: number) => (
                         <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
                           {facility}
                         </span>
