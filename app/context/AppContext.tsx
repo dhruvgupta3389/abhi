@@ -276,6 +276,8 @@ interface AppContextType {
   addMedicalRecord: (record: any) => Promise<void>;
   addVisit: (visit: any) => Promise<void>;
   updateVisit: (id: string, updates: any) => Promise<void>;
+  addTreatmentTracker: (tracker: any) => Promise<void>;
+  updateTreatmentTracker: (id: string, updates: any) => Promise<void>;
   getPatientMedicalHistory: (patientId: string) => any[];
 
   loading: boolean;
