@@ -765,6 +765,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addMedicalRecord,
     addVisit,
     updateVisit,
+    addTreatmentTracker,
+    updateTreatmentTracker,
     getPatientMedicalHistory,
 
     loading,
