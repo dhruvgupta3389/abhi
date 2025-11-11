@@ -85,7 +85,7 @@ const PatientRegistration: React.FC = () => {
 
   const filteredPatients = patients.filter(patient =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.aadhaarNumber.includes(searchTerm)
+    (patient.aadhaarNumber && patient.aadhaarNumber.includes(searchTerm))
   );
 
   const getStatusColor = (status: string) => {
