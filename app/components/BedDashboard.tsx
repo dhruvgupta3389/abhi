@@ -83,7 +83,7 @@ const BedDashboard: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Ward-wise Occupancy</h3>
         <div className="space-y-4">
-          {Object.entries(wardStats).map(([ward, stats]) => (
+          {Object.entries(wardStats).map(([ward, stats]: [string, any]) => (
             <div key={ward} className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-gray-900">{ward} Ward</span>
