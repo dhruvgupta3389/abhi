@@ -50,7 +50,7 @@ const PatientRegistration: React.FC = () => {
       nutritionStatus: formData.nutritionStatus,
       medicalHistory: [],
       registrationDate: new Date().toISOString().split('T')[0],
-      registeredBy: currentUser.employeeId,
+      registeredBy: currentUser?.employeeId || '',
       riskScore: formData.nutritionStatus === 'severely_malnourished' ? 85 : 
                  formData.nutritionStatus === 'malnourished' ? 60 : 30,
       nutritionalDeficiency: formData.nutritionStatus === 'severely_malnourished' ? 
