@@ -541,7 +541,7 @@ const MedicalRecords: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">{t('medical.keyFindings')}</h4>
                     <div className="space-y-1">
-                      {record.diagnosis.slice(0, 2).map((diag, index) => (
+                      {record.diagnosis.slice(0, 2).map((diag: string, index: number) => (
                         <span key={index} className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs mr-1">
                           {diag}
                         </span>
