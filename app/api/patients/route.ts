@@ -55,8 +55,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    console.log('📝 Received patient data from frontend:', JSON.stringify(body, null, 2));
-
     if (!body.name || !body.age || !body.type || !body.contactNumber || !body.address || !body.weight || !body.height || !body.nutritionStatus) {
       return NextResponse.json(
         { errors: [{ message: 'Missing required fields' }] },
@@ -101,16 +99,10 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString()
     };
 
-    console.log('🔄 Processing patient data for CSV storage:', JSON.stringify(patientData, null, 2));
-
     const success = csvManager.writeToCSV('patients.csv', patientData);
 
     if (success) {
-      console.log('✅ Patient successfully saved to CSV database with ID:', patientId);
-
       if (parseInt(patientData.risk_score) > 80 || patientData.nutrition_status === 'severely_malnourished') {
-        console.log('🚨 Creating high-risk patient notification...');
-
         const notificationData = {
           id: uuidv4(),
           user_role: 'supervisor',
@@ -125,7 +117,6 @@ export async function POST(request: NextRequest) {
         };
 
         csvManager.writeToCSV('notifications.csv', notificationData);
-        console.log('✅ High-risk notification created in CSV');
       }
 
       return NextResponse.json(
@@ -140,9 +131,9 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to save patient data to CSV');
     }
   } catch (err) {
-    console.error('❌ Error creating patient in CSV:', err);
+    console.error('❌ Error creating patient:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to create patient' },
+      { error: 'Failed to create patient' },
       { status: 500 }
     );
   }
