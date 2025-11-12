@@ -193,7 +193,7 @@ router.put('/users/:id', async (req, res) => {
 // Delete user (soft delete)
 router.delete('/users/:id', async (req, res) => {
   try {
-    const success = csvManager.updateCSV('users.csv\', req.params.id', { 
+    const success = csvManager.updateCSV('users.csv', req.params.id, {
       is_active: 'false',
       updated_at: new Date().toISOString()
     });
