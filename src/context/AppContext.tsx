@@ -104,6 +104,7 @@ interface AppContextType {
   updateBed: (id: string, updates: Partial<Bed>) => void;
   markNotificationRead: (id: string) => void;
   addNotification: (notification: Omit<Notification, 'id'>) => void;
+  addAIPrediction: (prediction: any) => void;
   
   // Loading states
   loading: boolean;
