@@ -406,7 +406,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         method: 'POST',
         body: JSON.stringify(notificationData),
       });
-      
+
       console.log('✅ Notification added successfully');
       await loadAllData(); // Reload notifications
     } catch (error) {
@@ -414,6 +414,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const addAIPrediction = async (prediction: any) => {
+    setAiPredictions([...aiPredictions, { ...prediction, id: `pred-${Date.now()}` }]);
+  };
 
   // Initialize app
   useEffect(() => {
