@@ -70,7 +70,7 @@ const AIHealthPrediction: React.FC = () => {
       recommendations.push('Folic acid supplementation');
     }
 
-    const newPrediction: Omit<HealthPrediction, 'id'> = {
+    const newPrediction: any = {
       patientId: selectedPatient,
       date: new Date().toISOString().split('T')[0],
       predictedRecoveryDays: finalDays,
