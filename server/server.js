@@ -93,8 +93,10 @@ app.listen(PORT, () => {
   console.log(`🔗 Frontend URL: ${FRONTEND_URL}`);
   console.log(`💾 Database: CSV File Storage (Persistent)`);
   console.log(`📡 API Endpoints: /api/patients, /api/beds, /api/notifications, /api/auth`);
-  console.log(`👑 Admin Panel: Login with ADMIN001 / admin / admin123`);
   console.log(`📁 Data Directory: ${path.join(__dirname, 'data')}`);
+  if (NODE_ENV === 'development') {
+    console.log(`💡 For demo credentials, check the login form in the frontend`);
+  }
 });
 
 module.exports = app;
