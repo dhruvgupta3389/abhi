@@ -104,6 +104,7 @@ interface AppContextType {
   updateBed: (id: string, updates: Partial<Bed>) => void;
   markNotificationRead: (id: string) => void;
   addNotification: (notification: Omit<Notification, 'id'>) => void;
+  addAIPrediction: (prediction: any) => void;
   
   // Loading states
   loading: boolean;
@@ -213,7 +214,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [visitTickets, setVisitTickets] = useState<any[]>([]);
   const [treatmentTrackers, setTreatmentTrackers] = useState<any[]>([]);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:3001/api';
 
   // Translation function
   const t = (key: string, params?: any): string => {
@@ -405,7 +406,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         method: 'POST',
         body: JSON.stringify(notificationData),
       });
-      
+
       console.log('✅ Notification added successfully');
       await loadAllData(); // Reload notifications
     } catch (error) {
@@ -413,6 +414,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const addAIPrediction = async (prediction: any) => {
+    setAiPredictions([...aiPredictions, { ...prediction, id: `pred-${Date.now()}` }]);
+  };
 
   // Initialize app
   useEffect(() => {
@@ -545,7 +549,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     updateBed,
     markNotificationRead,
     addNotification,
-    
+    addAIPrediction,
+
     // Loading states
     loading,
     error,

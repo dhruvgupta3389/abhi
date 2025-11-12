@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Brain, TrendingUp, AlertTriangle, Calendar, User, Activity, Target, Lightbulb } from 'lucide-react';
-import { useApp, HealthPrediction } from '../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const AIHealthPrediction: React.FC = () => {
   const { aiPredictions, patients, addAIPrediction, t } = useApp();
@@ -70,7 +70,7 @@ const AIHealthPrediction: React.FC = () => {
       recommendations.push('Folic acid supplementation');
     }
 
-    const newPrediction: Omit<HealthPrediction, 'id'> = {
+    const newPrediction: any = {
       patientId: selectedPatient,
       date: new Date().toISOString().split('T')[0],
       predictedRecoveryDays: finalDays,
@@ -123,7 +123,7 @@ const AIHealthPrediction: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               >
                 <option value="">{t('ai.selectPatient')}</option>
-                {patients.map(patient => (
+                {patients.map((patient: any) => (
                   <option key={patient.id} value={patient.id}>
                     {patient.name} - {patient.type === 'child' ? t('patient.child') : t('patient.pregnant')} ({patient.nutritionStatus})
                   </option>
@@ -200,7 +200,7 @@ const AIHealthPrediction: React.FC = () => {
             <p className="text-sm text-gray-400 mt-2">{t('ai.selectPatientFirst')}</p>
           </div>
         ) : (
-          aiPredictions.map(prediction => {
+          aiPredictions.map((prediction: any) => {
             const patient = patients.find(p => p.id === prediction.patientId);
             if (!patient) return null;
 
@@ -252,7 +252,7 @@ const AIHealthPrediction: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3">{t('ai.riskFactors')}</h4>
                     <div className="space-y-2">
-                      {prediction.riskFactors.map((factor, index) => (
+                      {prediction.riskFactors.map((factor: string, index: number) => (
                         <div key={index} className="flex items-center space-x-2">
                           <AlertTriangle className="w-4 h-4 text-red-500" />
                           <span className="text-sm text-gray-700">{factor}</span>
@@ -265,7 +265,7 @@ const AIHealthPrediction: React.FC = () => {
                 <div className="mt-6">
                   <h4 className="font-medium text-gray-900 mb-3">{t('ai.recommendations')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {prediction.recommendations.map((recommendation, index) => (
+                    {prediction.recommendations.map((recommendation: string, index: number) => (
                       <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
                         <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                         <span className="text-sm text-blue-800">{recommendation}</span>

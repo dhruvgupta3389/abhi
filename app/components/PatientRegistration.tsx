@@ -50,13 +50,15 @@ const PatientRegistration: React.FC = () => {
       nutritionStatus: formData.nutritionStatus,
       medicalHistory: [],
       registrationDate: new Date().toISOString().split('T')[0],
-      registeredBy: currentUser.employeeId,
+      registeredBy: currentUser?.employee_id || '',
       riskScore: formData.nutritionStatus === 'severely_malnourished' ? 85 : 
                  formData.nutritionStatus === 'malnourished' ? 60 : 30,
-      nutritionalDeficiency: formData.nutritionStatus === 'severely_malnourished' ? 
-                           ['Protein', 'Iron', 'Vitamin D'] : 
-                           formData.nutritionStatus === 'malnourished' ? 
-                           ['Iron', 'Vitamin D'] : []
+      nutritionalDeficiency: formData.nutritionStatus === 'severely_malnourished' ?
+                           ['Protein', 'Iron', 'Vitamin D'] :
+                           formData.nutritionStatus === 'malnourished' ?
+                           ['Iron', 'Vitamin D'] : [],
+      admissionDate: new Date().toISOString().split('T')[0],
+      nextVisit: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     };
 
     addPatient(newPatient);
@@ -83,7 +85,7 @@ const PatientRegistration: React.FC = () => {
 
   const filteredPatients = patients.filter(patient =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.aadhaarNumber.includes(searchTerm)
+    (patient.aadhaarNumber && patient.aadhaarNumber.includes(searchTerm))
   );
 
   const getStatusColor = (status: string) => {
@@ -180,7 +182,7 @@ const PatientRegistration: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900">Registered Patients</h3>
         </div>
         <div className="divide-y divide-gray-200">
-          {filteredPatients.map((patient) => (
+          {filteredPatients.map((patient: any) => (
             <div key={patient.id} className="p-6 hover:bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -223,7 +225,7 @@ const PatientRegistration: React.FC = () => {
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">Symptoms:</p>
                   <div className="flex flex-wrap gap-2">
-                    {patient.symptoms.map((symptom, index) => (
+                    {patient.symptoms.map((symptom: string, index: number) => (
                       <span key={index} className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
                         {symptom}
                       </span>
@@ -236,7 +238,7 @@ const PatientRegistration: React.FC = () => {
                 <div className="mt-2">
                   <p className="text-sm font-medium text-gray-700 mb-2">Nutritional Deficiencies:</p>
                   <div className="flex flex-wrap gap-2">
-                    {patient.nutritionalDeficiency.map((deficiency, index) => (
+                    {patient.nutritionalDeficiency.map((deficiency: string, index: number) => (
                       <span key={index} className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
                         {deficiency}
                       </span>

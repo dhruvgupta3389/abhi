@@ -121,7 +121,7 @@ const WorkerManagement: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">Assigned Areas</h4>
                 <div className="flex flex-wrap gap-2">
-                  {worker.assignedAreas.map((area, index) => (
+                  {worker.assignedAreas.map((area: string, index: number) => (
                     <span key={index} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
                       {area}
                     </span>
@@ -134,7 +134,7 @@ const WorkerManagement: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">Qualifications</h4>
                 <div className="flex flex-wrap gap-2">
-                  {worker.qualifications.map((qualification, index) => (
+                  {worker.qualifications.map((qualification: string, index: number) => (
                     <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
                       {qualification}
                     </span>
@@ -590,7 +590,7 @@ const WorkerManagement: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Assigned Areas</h4>
                     <div className="flex flex-wrap gap-1">
-                      {worker.assignedAreas.slice(0, 2).map((area, index) => (
+                      {worker.assignedAreas.slice(0, 2).map((area: string, index: number) => (
                         <span key={index} className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                           {area}
                         </span>
@@ -608,7 +608,7 @@ const WorkerManagement: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Qualifications</h4>
                     <div className="flex flex-wrap gap-1">
-                      {worker.qualifications.slice(0, 2).map((qualification, index) => (
+                      {worker.qualifications.slice(0, 2).map((qualification: string, index: number) => (
                         <span key={index} className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
                           {qualification}
                         </span>

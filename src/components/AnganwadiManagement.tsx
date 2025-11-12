@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { MapPin, Plus, Users, Phone, Calendar, Building, CheckCircle, XCircle, Eye, Edit } from 'lucide-react';
-import { useApp, Anganwadi } from '../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const AnganwadiManagement: React.FC = () => {
   const { anganwadis, workers, t } = useApp();
-  const [selectedAnganwadi, setSelectedAnganwadi] = useState<Anganwadi | null>(null);
+  const [selectedAnganwadi, setSelectedAnganwadi] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
   const getAnganwadiWorkers = (anganwadiId: string) => {

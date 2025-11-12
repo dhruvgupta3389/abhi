@@ -277,7 +277,7 @@ const SurveyReports: React.FC = () => {
                         <div>
                           <span className="text-sm text-gray-600">{t('survey.supplements')}:</span>
                           <div className="flex flex-wrap gap-1 mt-1">
-                            {survey.nutritionData.supplements.map((supplement, index) => (
+                            {survey.nutritionData.supplements.map((supplement: string, index: number) => (
                               <span key={index} className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                                 {supplement}
                               </span>
@@ -293,7 +293,7 @@ const SurveyReports: React.FC = () => {
                   <div className="mt-4">
                     <h4 className="font-medium text-gray-900 mb-2">{t('survey.symptomsObserved')}</h4>
                     <div className="flex flex-wrap gap-2">
-                      {survey.symptoms.map((symptom, index) => (
+                      {survey.symptoms.map((symptom: string, index: number) => (
                         <span key={index} className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs flex items-center">
                           <Thermometer className="w-3 h-3 mr-1" />
                           {symptom}
@@ -307,7 +307,7 @@ const SurveyReports: React.FC = () => {
                   <div className="mt-4">
                     <h4 className="font-medium text-gray-900 mb-2">{t('ai.recommendations')}</h4>
                     <div className="flex flex-wrap gap-2">
-                      {survey.recommendations.map((recommendation, index) => (
+                      {survey.recommendations.map((recommendation: string, index: number) => (
                         <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs flex items-center">
                           <Activity className="w-3 h-3 mr-1" />
                           {recommendation}

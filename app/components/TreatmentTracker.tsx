@@ -71,7 +71,7 @@ const TreatmentTracker: React.FC = () => {
                 <div>
                   <span className="text-xs font-medium text-gray-600">Treatment Plan:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {tracker.treatmentPlan.slice(0, 3).map((treatment, idx) => (
+                    {tracker.treatmentPlan.slice(0, 3).map((treatment: string, idx: number) => (
                       <span key={idx} className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                         {treatment}
                       </span>

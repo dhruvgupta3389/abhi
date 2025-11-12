@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { TrendingUp, User, Calendar, CheckCircle, XCircle, Clock, FileText, Activity, Heart } from 'lucide-react';
-import { useApp, TreatmentTracker } from '../context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const AdmissionTracking: React.FC = () => {
   const { treatmentTrackers, patients, beds, t } = useApp();
   const [filterStatus, setFilterStatus] = useState<'all' | 'admitted' | 'discharged'>('all');
-  const [selectedTracker, setSelectedTracker] = useState<TreatmentTracker | null>(null);
+  const [selectedTracker, setSelectedTracker] = useState<any>(null);
 
   const admittedPatients = treatmentTrackers.filter(tracker => !tracker.dischargeDate);
   const dischargedPatients = treatmentTrackers.filter(tracker => tracker.dischargeDate);
@@ -16,7 +16,7 @@ const AdmissionTracking: React.FC = () => {
     return true;
   });
 
-  const TrackerDetailsModal = ({ tracker }: { tracker: TreatmentTracker }) => {
+  const TrackerDetailsModal = ({ tracker }: { tracker: any }) => {
     const patient = patients.find(p => p.id === tracker.patientId);
     
     return (
@@ -97,7 +97,7 @@ const AdmissionTracking: React.FC = () => {
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Treatment Plan</h4>
               <div className="flex flex-wrap gap-2">
-                {tracker.treatmentPlan.map((treatment, index) => (
+                {tracker.treatmentPlan.map((treatment: string, index: number) => (
                   <span key={index} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
                     {treatment}
                   </span>
@@ -109,7 +109,7 @@ const AdmissionTracking: React.FC = () => {
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Progress Tracking</h4>
               <div className="space-y-3">
-                {tracker.dailyProgress.slice(-5).map((progress, index) => (
+                {tracker.dailyProgress.slice(-5).map((progress: any, index: number) => (
                   <div key={index} className="bg-gray-50 p-3 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-gray-900">{new Date(progress.date).toLocaleDateString()}</span>
@@ -145,7 +145,7 @@ const AdmissionTracking: React.FC = () => {
                 <div className="mt-3">
                   <span className="font-medium">Follow-up Instructions:</span>
                   <ul className="list-disc list-inside text-sm mt-1">
-                    {tracker.dischargeSummary.followUpInstructions.map((instruction, index) => (
+                    {tracker.dischargeSummary.followUpInstructions.map((instruction: string, index: number) => (
                       <li key={index}>{instruction}</li>
                     ))}
                   </ul>
@@ -242,7 +242,7 @@ const AdmissionTracking: React.FC = () => {
             <p className="text-gray-500">No admission/discharge records found</p>
           </div>
         ) : (
-          filteredTrackers.map(tracker => {
+          filteredTrackers.map((tracker: any) => {
             const patient = patients.find(p => p.id === tracker.patientId);
             const latestProgress = tracker.dailyProgress[tracker.dailyProgress.length - 1];
             const stayDuration = tracker.dischargeDate ? 
@@ -317,7 +317,7 @@ const AdmissionTracking: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Treatment Plan</h4>
                     <div className="flex flex-wrap gap-1">
-                      {tracker.treatmentPlan.slice(0, 2).map((treatment, index) => (
+                      {tracker.treatmentPlan.slice(0, 2).map((treatment: string, index: number) => (
                         <span key={index} className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                           {treatment}
                         </span>

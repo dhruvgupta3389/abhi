@@ -276,6 +276,8 @@ interface AppContextType {
   addMedicalRecord: (record: any) => Promise<void>;
   addVisit: (visit: any) => Promise<void>;
   updateVisit: (id: string, updates: any) => Promise<void>;
+  addTreatmentTracker: (tracker: any) => Promise<void>;
+  updateTreatmentTracker: (id: string, updates: any) => Promise<void>;
   getPatientMedicalHistory: (patientId: string) => any[];
 
   loading: boolean;
@@ -385,9 +387,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const API_BASE_URL = '/api';
 
   const t = (key: string, params?: any): string => {
-    const translation = translations[language][key as keyof typeof translations['en']] || key;
+    const translation = (translations[language] as any)[key] || key;
     if (params) {
-      return translation.replace(/\{(\w+)\}/g, (match, paramKey) => params[paramKey] || match);
+      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => params[paramKey] || match);
     }
     return translation;
   };
@@ -629,6 +631,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTreatmentTrackers([...treatmentTrackers, { ...tracker, id: `tracker-${Date.now()}` }]);
   };
 
+  const updateTreatmentTracker = async (id: string, updates: any) => {
+    setTreatmentTrackers(treatmentTrackers.map(tracker =>
+      tracker.id === id ? { ...tracker, ...updates } : tracker
+    ));
+  };
+
   useEffect(() => {
     const initializeApp = async () => {
       try {
@@ -757,6 +765,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addMedicalRecord,
     addVisit,
     updateVisit,
+    addTreatmentTracker,
+    updateTreatmentTracker,
     getPatientMedicalHistory,
 
     loading,

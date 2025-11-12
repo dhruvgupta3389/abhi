@@ -116,7 +116,7 @@ const VisitTicketing: React.FC = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Missed Visit Conditions</label>
               <div className="grid grid-cols-2 gap-2">
-                {Object.entries(formData.missedConditions).map(([key, value]) => (
+                {Object.entries(formData.missedConditions).map(([key, value]: [string, boolean]) => (
                   <label key={key} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -255,7 +255,7 @@ const VisitTicketing: React.FC = () => {
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Missed Visit Conditions</h4>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {Object.entries(ticket.missedConditions).map(([key, value]) => {
+                {Object.entries(ticket.missedConditions).map(([key, value]: [string, boolean]) => {
                   if (!value) return null;
                   return (
                     <span key={key} className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
@@ -269,7 +269,7 @@ const VisitTicketing: React.FC = () => {
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Actions Taken</h4>
               <div className="flex flex-wrap gap-2">
-                {ticket.actionsTaken.map((action, index) => (
+                {ticket.actionsTaken.map((action: string, index: number) => (
                   <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                     {action}
                   </span>
