@@ -16,7 +16,7 @@ const AdmissionTracking: React.FC = () => {
     return true;
   });
 
-  const TrackerDetailsModal = ({ tracker }: { tracker: TreatmentTracker }) => {
+  const TrackerDetailsModal = ({ tracker }: { tracker: any }) => {
     const patient = patients.find(p => p.id === tracker.patientId);
     
     return (
