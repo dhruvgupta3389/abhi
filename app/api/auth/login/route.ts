@@ -25,8 +25,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username, password, employee_id } = body;
 
-    console.log('🔐 Login attempt for:', { username, employee_id });
-
     const searchCriteria: any = {
       username: username,
       is_active: 'true'
@@ -39,30 +37,42 @@ export async function POST(request: NextRequest) {
     const user = csvManager.findOne('users.csv', searchCriteria);
 
     if (!user) {
-      console.log('❌ User not found in CSV database');
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    console.log('✅ User found in CSV database:', user.name);
+    // In production, this should use bcrypt.compare but csvManager doesn't have async support
+    // For now, validate against password_hash field if it exists
+    const hasPasswordHash = user.password_hash && user.password_hash.startsWith('$2');
+    let validPassword = false;
 
-    const validPassword = 
-      password === 'worker123' || 
-      password === 'super123' || 
-      password === 'hosp123' || 
-      password === 'admin123';
+    if (hasPasswordHash) {
+      // Password is hashed - need to use bcrypt for validation
+      const bcrypt = require('bcryptjs');
+      validPassword = await bcrypt.compare(password, user.password_hash);
+    } else {
+      // Fallback for legacy unhashed passwords (should be migrated)
+      validPassword = false;
+    }
 
     if (!validPassword) {
-      console.log('❌ Invalid password');
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    const secret = process.env.JWT_SECRET ?? 'default-secret';
+    // Verify JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ CRITICAL: JWT_SECRET environment variable is not set');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
     const expiresIn = parseExpires(process.env.JWT_EXPIRES_IN ?? '24h');
     const token = sign(
       {
@@ -70,11 +80,9 @@ export async function POST(request: NextRequest) {
         employeeId: user.employee_id,
         role: user.role
       },
-      secret,
+      process.env.JWT_SECRET,
       { expiresIn }
     );
-
-    console.log('✅ Login successful for:', user.name);
 
     return NextResponse.json({
       token,
@@ -90,7 +98,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('❌ Login error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Login failed' },
+      { error: 'Authentication failed' },
       { status: 500 }
     );
   }

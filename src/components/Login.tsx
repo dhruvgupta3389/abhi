@@ -17,14 +17,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log('🔐 Attempting login with MySQL database...');
-      
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,15 +38,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Login successful:', data.user.name);
         onLogin(data.user.role, data.user);
       } else {
         const errorData = await response.json();
-        console.log('❌ Login failed:', errorData.error);
         alert(errorData.error || 'Invalid credentials. Please try again.');
       }
     } catch (error) {
-      console.error('❌ Login error:', error);
       alert('Connection error. Please check if the server is running.');
     }
 

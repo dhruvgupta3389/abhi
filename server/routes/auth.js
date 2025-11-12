@@ -20,43 +20,43 @@ router.post('/login', [
 
   try {
     const { username, password, employee_id } = req.body;
-    console.log('🔐 Login attempt for:', { username, employee_id });
 
     // Find user in CSV file
-    const user = csvManager.findOne('users.csv', { 
-      username: username, 
+    const user = csvManager.findOne('users.csv', {
+      username: username,
       employee_id: employee_id,
       is_active: 'true'
     });
 
     if (!user) {
-      console.log('❌ User not found in CSV database');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    console.log('✅ User found in CSV database:', user.name);
+    // Support both hashed and demo passwords for testing
+    let validPassword = false;
+    if (user.password_hash && user.password_hash.startsWith('$2')) {
+      // Hashed password - use bcrypt
+      validPassword = await bcrypt.compare(password, user.password_hash);
+    } else {
+      // Demo credentials for testing (worker123, super123, hosp123, admin123)
+      validPassword = password === 'worker123' || password === 'super123' || password === 'hosp123' || password === 'admin123';
+    }
 
-    // For demo purposes, accept simple passwords
-    // In production, use: const validPassword = await bcrypt.compare(password, user.password_hash);
-    const validPassword = password === 'worker123' || password === 'super123' || password === 'hosp123' || password === 'admin123';
-    
     if (!validPassword) {
-      console.log('❌ Invalid password');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT token with configurable secret
+    const secret = process.env.JWT_SECRET || 'demo-secret-key-change-in-production';
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        employeeId: user.employee_id, 
-        role: user.role 
+      {
+        userId: user.id,
+        employeeId: user.employee_id,
+        role: user.role
       },
-      process.env.JWT_SECRET || 'default-secret',
+      secret,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
-
-    console.log('✅ Login successful for:', user.name);
 
     res.json({
       token,
@@ -70,18 +70,16 @@ router.post('/login', [
       }
     });
   } catch (err) {
-    console.error('❌ Login error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Login error:', err.message);
+    res.status(500).json({ error: 'Authentication failed' });
   }
 });
 
 // Get all users (Admin only)
 router.get('/users', async (req, res) => {
   try {
-    console.log('📊 Fetching all users from CSV database...');
-    
     const users = csvManager.readCSV('users.csv');
-    
+
     // Remove password hashes from response
     const safeUsers = users.map(user => ({
       id: user.id,
@@ -94,12 +92,11 @@ router.get('/users', async (req, res) => {
       is_active: user.is_active === 'true',
       created_at: user.created_at
     }));
-    
-    console.log(`✅ Successfully retrieved ${safeUsers.length} users from CSV`);
+
     res.json(safeUsers);
   } catch (err) {
-    console.error('❌ Error fetching users from CSV:', err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Error fetching users:', err.message);
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
 
@@ -113,12 +110,10 @@ router.post('/users', [
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log('❌ Validation errors:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
-    console.log('📝 Creating new user in CSV:', JSON.stringify(req.body, null, 2));
     
     // Check if employee_id or username already exists
     const existingUser = csvManager.findOne('users.csv', { employee_id: req.body.employeeId });
@@ -153,22 +148,19 @@ router.post('/users', [
     const success = csvManager.writeToCSV('users.csv', userData);
     
     if (success) {
-      console.log('✅ User successfully created in CSV database with ID:', userId);
       res.status(201).json({ message: 'User created successfully', id: userId });
     } else {
       throw new Error('Failed to write user data to CSV');
     }
   } catch (err) {
-    console.error('❌ Error creating user in CSV:', err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Error creating user:', err.message);
+    res.status(500).json({ error: 'Failed to create user' });
   }
 });
 
 // Update user
 router.put('/users/:id', async (req, res) => {
   try {
-    console.log(`📝 Updating user ${req.params.id} in CSV:`, JSON.stringify(req.body, null, 2));
-    
     const updates = { ...req.body };
     
     // Convert frontend field names to database field names
@@ -188,36 +180,32 @@ router.put('/users/:id', async (req, res) => {
     const success = csvManager.updateCSV('users.csv', req.params.id, updates);
     
     if (success) {
-      console.log('✅ User successfully updated in CSV database');
       res.json({ message: 'User updated successfully' });
     } else {
       res.status(404).json({ error: 'User not found' });
     }
   } catch (err) {
-    console.error('❌ Error updating user in CSV:', err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Error updating user:', err.message);
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 
 // Delete user (soft delete)
 router.delete('/users/:id', async (req, res) => {
   try {
-    console.log(`🗑️ Soft deleting user ${req.params.id} in CSV...`);
-    
-    const success = csvManager.updateCSV('users.csv', req.params.id, { 
+    const success = csvManager.updateCSV('users.csv', req.params.id, {
       is_active: 'false',
       updated_at: new Date().toISOString()
     });
     
     if (success) {
-      console.log('✅ User successfully deactivated in CSV database');
       res.json({ message: 'User deactivated successfully' });
     } else {
       res.status(404).json({ error: 'User not found' });
     }
   } catch (err) {
-    console.error('❌ Error deactivating user in CSV:', err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ Error deactivating user:', err.message);
+    res.status(500).json({ error: 'Failed to deactivate user' });
   }
 });
 

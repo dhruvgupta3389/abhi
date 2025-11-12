@@ -11,6 +11,19 @@ class CSVManager {
     this.initializeCSVFiles();
   }
 
+  // Safe JSON parse helper to prevent crashes on malformed JSON
+  public safeJsonParse<T = any>(jsonString: string | null | undefined, fallback: T): T {
+    if (!jsonString) {
+      return fallback;
+    }
+    try {
+      return JSON.parse(jsonString) as T;
+    } catch (error) {
+      console.error('❌ Failed to parse JSON:', error);
+      return fallback;
+    }
+  }
+
   private ensureDataDirectory() {
     if (!fs.existsSync(this.dataDir)) {
       fs.mkdirSync(this.dataDir, { recursive: true });

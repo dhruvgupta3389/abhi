@@ -8,8 +8,8 @@ const MedicalReports: React.FC = () => {
   const [showUploadForm, setShowUploadForm] = useState(false);
 
   // Generate mock lab reports from treatment trackers
-  const labReports = treatmentTrackers.flatMap(tracker => 
-    tracker.labReports.map(report => ({
+  const labReports = treatmentTrackers.flatMap(tracker =>
+    (tracker.labReports || []).map(report => ({
       ...report,
       patientId: tracker.patientId,
       trackerId: tracker.id,

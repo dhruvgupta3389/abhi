@@ -80,7 +80,7 @@ const AnganwadiManagement: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">Coverage Areas</h4>
                 <div className="flex flex-wrap gap-2">
-                  {(anganwadi.coverageAreas || []).map((area, index) => (
+                  {(anganwadi.coverageAreas || []).map((area: string, index: number) => (
                     <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                       {area}
                     </span>
@@ -316,7 +316,7 @@ const AnganwadiManagement: React.FC = () => {
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Coverage Areas</h4>
                   <div className="flex flex-wrap gap-1">
-                    {(Array.isArray(anganwadi.coverageAreas) ? anganwadi.coverageAreas : []).slice(0, 3).map((area, index) => (
+                    {(Array.isArray(anganwadi.coverageAreas) ? anganwadi.coverageAreas : []).slice(0, 3).map((area: string, index: number) => (
                       <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
                         {area}
                       </span>

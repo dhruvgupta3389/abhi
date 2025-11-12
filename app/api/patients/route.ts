@@ -4,8 +4,6 @@ import { csvManager } from '@/lib/csvManager';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📊 Fetching all patients from CSV database...');
-
     const patients = csvManager.readCSV('patients.csv');
 
     const transformedPatients = patients
@@ -27,13 +25,13 @@ export async function GET(request: NextRequest) {
         temperature: patient.temperature ? parseFloat(patient.temperature) : undefined,
         hemoglobin: patient.hemoglobin ? parseFloat(patient.hemoglobin) : undefined,
         nutritionStatus: patient.nutrition_status,
-        medicalHistory: patient.medical_history ? JSON.parse(patient.medical_history) : [],
-        symptoms: patient.symptoms ? JSON.parse(patient.symptoms) : [],
-        documents: patient.documents ? JSON.parse(patient.documents) : [],
-        photos: patient.photos ? JSON.parse(patient.photos) : [],
+        medicalHistory: csvManager.safeJsonParse(patient.medical_history, []),
+        symptoms: csvManager.safeJsonParse(patient.symptoms, []),
+        documents: csvManager.safeJsonParse(patient.documents, []),
+        photos: csvManager.safeJsonParse(patient.photos, []),
         remarks: patient.remarks,
         riskScore: parseInt(patient.risk_score) || 0,
-        nutritionalDeficiency: patient.nutritional_deficiency ? JSON.parse(patient.nutritional_deficiency) : [],
+        nutritionalDeficiency: csvManager.safeJsonParse(patient.nutritional_deficiency, []),
         bedId: patient.bed_id,
         lastVisitDate: patient.last_visit_date,
         nextVisitDate: patient.next_visit_date,
@@ -43,12 +41,11 @@ export async function GET(request: NextRequest) {
         nextVisit: patient.next_visit_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       }));
 
-    console.log(`✅ Successfully retrieved ${transformedPatients.length} patients from CSV`);
     return NextResponse.json(transformedPatients);
   } catch (err) {
-    console.error('❌ Error fetching patients from CSV:', err);
+    console.error('❌ Error fetching patients:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to fetch patients' },
+      { error: 'Failed to fetch patients' },
       { status: 500 }
     );
   }
@@ -57,8 +54,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
-    console.log('📝 Received patient data from frontend:', JSON.stringify(body, null, 2));
 
     if (!body.name || !body.age || !body.type || !body.contactNumber || !body.address || !body.weight || !body.height || !body.nutritionStatus) {
       return NextResponse.json(
@@ -104,16 +99,10 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString()
     };
 
-    console.log('🔄 Processing patient data for CSV storage:', JSON.stringify(patientData, null, 2));
-
     const success = csvManager.writeToCSV('patients.csv', patientData);
 
     if (success) {
-      console.log('✅ Patient successfully saved to CSV database with ID:', patientId);
-
       if (parseInt(patientData.risk_score) > 80 || patientData.nutrition_status === 'severely_malnourished') {
-        console.log('🚨 Creating high-risk patient notification...');
-
         const notificationData = {
           id: uuidv4(),
           user_role: 'supervisor',
@@ -128,7 +117,6 @@ export async function POST(request: NextRequest) {
         };
 
         csvManager.writeToCSV('notifications.csv', notificationData);
-        console.log('✅ High-risk notification created in CSV');
       }
 
       return NextResponse.json(
@@ -143,9 +131,9 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to save patient data to CSV');
     }
   } catch (err) {
-    console.error('❌ Error creating patient in CSV:', err);
+    console.error('❌ Error creating patient:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to create patient' },
+      { error: 'Failed to create patient' },
       { status: 500 }
     );
   }
