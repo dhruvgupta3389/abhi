@@ -145,7 +145,7 @@ const AdmissionTracking: React.FC = () => {
                 <div className="mt-3">
                   <span className="font-medium">Follow-up Instructions:</span>
                   <ul className="list-disc list-inside text-sm mt-1">
-                    {tracker.dischargeSummary.followUpInstructions.map((instruction, index) => (
+                    {tracker.dischargeSummary.followUpInstructions.map((instruction: string, index: number) => (
                       <li key={index}>{instruction}</li>
                     ))}
                   </ul>
