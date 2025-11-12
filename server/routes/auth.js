@@ -20,43 +20,41 @@ router.post('/login', [
 
   try {
     const { username, password, employee_id } = req.body;
-    console.log('🔐 Login attempt for:', { username, employee_id });
 
     // Find user in CSV file
-    const user = csvManager.findOne('users.csv', { 
-      username: username, 
+    const user = csvManager.findOne('users.csv', {
+      username: username,
       employee_id: employee_id,
       is_active: 'true'
     });
 
     if (!user) {
-      console.log('❌ User not found in CSV database');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    console.log('✅ User found in CSV database:', user.name);
+    // Validate password using bcrypt
+    const validPassword = await bcrypt.compare(password, user.password_hash);
 
-    // For demo purposes, accept simple passwords
-    // In production, use: const validPassword = await bcrypt.compare(password, user.password_hash);
-    const validPassword = password === 'worker123' || password === 'super123' || password === 'hosp123' || password === 'admin123';
-    
     if (!validPassword) {
-      console.log('❌ Invalid password');
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Verify JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ CRITICAL: JWT_SECRET environment variable is not set');
+      return res.status(500).json({ error: 'Server configuration error' });
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        employeeId: user.employee_id, 
-        role: user.role 
+      {
+        userId: user.id,
+        employeeId: user.employee_id,
+        role: user.role
       },
-      process.env.JWT_SECRET || 'default-secret',
+      process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
-
-    console.log('✅ Login successful for:', user.name);
 
     res.json({
       token,
@@ -71,7 +69,7 @@ router.post('/login', [
     });
   } catch (err) {
     console.error('❌ Login error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Authentication failed' });
   }
 });
 
