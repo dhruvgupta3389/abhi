@@ -80,7 +80,7 @@ const AnganwadiManagement: React.FC = () => {
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">Coverage Areas</h4>
                 <div className="flex flex-wrap gap-2">
-                  {(anganwadi.coverageAreas || []).map((area, index) => (
+                  {(anganwadi.coverageAreas || []).map((area: string, index: number) => (
                     <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                       {area}
                     </span>
