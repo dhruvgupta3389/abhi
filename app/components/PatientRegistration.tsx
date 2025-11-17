@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Plus, Search, User, Baby, Heart, FileText, Camera, Upload, AlertTriangle } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp, Patient } from '../context/AppContext';
 
 const PatientRegistration: React.FC = () => {
   const { patients, addPatient, currentUser, t } = useApp();
@@ -182,7 +182,7 @@ const PatientRegistration: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900">Registered Patients</h3>
         </div>
         <div className="divide-y divide-gray-200">
-          {filteredPatients.map((patient: any) => (
+          {filteredPatients.map((patient: Patient) => (
             <div key={patient.id} className="p-6 hover:bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
