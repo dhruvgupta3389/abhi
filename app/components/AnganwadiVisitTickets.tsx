@@ -197,7 +197,7 @@ const AnganwadiVisitTickets: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('ticket.visitType')}</label>
                 <select
                   value={formData.visitType}
-                  onChange={(e) => setFormData({...formData, visitType: e.target.value as any})}
+                  onChange={(e) => setFormData({...formData, visitType: e.target.value as 'routine_checkup' | 'nutrition_survey' | 'vaccination' | 'emergency' | 'follow_up'})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="routine_checkup">{t('ticket.routineCheckup')}</option>
@@ -377,7 +377,7 @@ const AnganwadiVisitTickets: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.filter')} by {t('common.status')}</label>
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
+              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'scheduled' | 'in_progress' | 'completed' | 'missed' | 'cancelled')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">{t('common.all')} {t('common.status')}</option>
