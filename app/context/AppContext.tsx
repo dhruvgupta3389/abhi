@@ -386,10 +386,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const API_BASE_URL = '/api';
 
-  const t = (key: string, params?: any): string => {
-    const translation = (translations[language] as any)[key] || key;
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    const translation = (translations[language] as Record<string, string>)[key] || key;
     if (params) {
-      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => params[paramKey] || match);
+      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => String(params[paramKey]) || match);
     }
     return translation;
   };
