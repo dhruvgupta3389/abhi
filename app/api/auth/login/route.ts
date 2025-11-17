@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sign, type Secret } from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
 import { csvManager } from '@/lib/csvManager';
 
 function parseExpires(input: string | number | undefined): number {
@@ -49,8 +50,7 @@ export async function POST(request: NextRequest) {
     let validPassword = false;
 
     if (hasPasswordHash) {
-      // Password is hashed - need to use bcrypt for validation
-      const bcrypt = require('bcryptjs');
+      // Password is hashed - use bcrypt for validation
       validPassword = await bcrypt.compare(password, user.password_hash);
     } else {
       // Fallback for legacy unhashed passwords (should be migrated)
