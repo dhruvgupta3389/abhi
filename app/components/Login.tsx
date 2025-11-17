@@ -152,12 +152,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               Select Your Role
             </h2>
             <div className="space-y-4">
-              {Object.entries(roleConfigs).map(([role, config]: [string, any]) => {
+              {Object.entries(roleConfigs).map(([role, config]: [string, (typeof roleConfigs)[keyof typeof roleConfigs]]) => {
                 const RoleIcon = config.icon;
                 return (
                   <button
                     key={role}
-                    onClick={() => setSelectedRole(role as any)}
+                    onClick={() => setSelectedRole(role as 'anganwadi_worker' | 'supervisor' | 'hospital' | 'admin')}
                     className={`w-full p-4 rounded-lg border-2 transition-all ${
                       selectedRole === role
                         ? `${config.bgColor} ${config.borderColor} ${config.textColor}`
