@@ -393,16 +393,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [visits, setVisits] = useState<any[]>([]);
-  const [anganwadis, setAnganwadis] = useState<any[]>([]);
-  const [workers, setWorkers] = useState<any[]>([]);
-  const [bedRequests, setBedRequests] = useState<any[]>([]);
-  const [medicalRecords, setMedicalRecords] = useState<any[]>([]);
-  const [surveys, setSurveys] = useState<any[]>([]);
-  const [aiPredictions, setAiPredictions] = useState<any[]>([]);
-  const [missedVisitTickets, setMissedVisitTickets] = useState<any[]>([]);
-  const [visitTickets, setVisitTickets] = useState<any[]>([]);
-  const [treatmentTrackers, setTreatmentTrackers] = useState<any[]>([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [anganwadis, setAnganwadis] = useState<Anganwadi[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [bedRequests, setBedRequests] = useState<BedRequest[]>([]);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [surveys, setSurveys] = useState<SurveyReport[]>([]);
+  const [aiPredictions, setAiPredictions] = useState<Record<string, unknown>[]>([]);
+  const [missedVisitTickets, setMissedVisitTickets] = useState<MissedVisitTicket[]>([]);
+  const [visitTickets, setVisitTickets] = useState<AnganwadiVisitTicket[]>([]);
+  const [treatmentTrackers, setTreatmentTrackers] = useState<TreatmentTracker[]>([]);
 
   const API_BASE_URL = '/api';
 
@@ -670,7 +670,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           const elapsed = currentTime - parseInt(loginTime);
 
           if (elapsed > SESSION_DURATION) {
-            console.log('⏰ Session expired');
+            console.log('��� Session expired');
             localStorage.removeItem('currentUser');
             localStorage.removeItem('userRole');
             localStorage.removeItem('loginTime');
