@@ -38,22 +38,34 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         }),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        console.error('❌ Failed to parse response:', parseError);
-        alert('Server error. Please try again.');
+      const contentType = response.headers.get('content-type');
+      let data: any = null;
+
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error('❌ Failed to parse JSON response:', parseError);
+          const text = await response.text();
+          console.error('Response text:', text);
+          alert('Server error. Please try again.');
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        const text = await response.text();
+        console.error('❌ Non-JSON response from server:', text);
+        alert('Server error. Invalid response format.');
         setIsLoading(false);
         return;
       }
 
-      if (response.ok) {
+      if (response.ok && data) {
         console.log('✅ Login successful:', data.user.name);
         onLogin(data.user.role, data.user);
       } else {
-        console.log('❌ Login failed:', data.error);
-        alert(data.error || 'Invalid credentials. Please try again.');
+        console.log('❌ Login failed:', data?.error || 'Unknown error');
+        alert(data?.error || 'Invalid credentials. Please try again.');
       }
     } catch (error) {
       console.error('❌ Login error:', error);
