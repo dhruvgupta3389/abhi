@@ -75,6 +75,7 @@ const VisitScheduling: React.FC = () => {
         nextAttemptDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         supervisorNotified: false,
         status: 'open' as const,
+        escalationLevel: 'none' as const,
       };
       addMissedVisitTicket(newTicket);
     }

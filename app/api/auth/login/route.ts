@@ -22,9 +22,27 @@ function parseExpires(input: string | number | undefined): number {
 }
 
 export async function POST(request: NextRequest) {
+  let body: any = null;
+
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch (parseErr) {
+    console.error('❌ Failed to parse request body:', parseErr);
+    return NextResponse.json(
+      { error: 'Invalid request format' },
+      { status: 400 }
+    );
+  }
+
+  try {
     const { username, password, employee_id } = body;
+
+    if (!username || !password) {
+      return NextResponse.json(
+        { error: 'Username and password are required' },
+        { status: 400 }
+      );
+    }
 
     const searchCriteria: any = {
       username: username,
@@ -38,39 +56,42 @@ export async function POST(request: NextRequest) {
     const user = csvManager.findOne('users.csv', searchCriteria);
 
     if (!user) {
+      console.log(`⚠️ User not found: ${username}`);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    // In production, this should use bcrypt.compare but csvManager doesn't have async support
-    // For now, validate against password_hash field if it exists
-    const hasPasswordHash = user.password_hash && user.password_hash.startsWith('$2');
+    // Validate password
     let validPassword = false;
 
-    if (hasPasswordHash) {
-      // Password is hashed - use bcrypt for validation
-      validPassword = await bcrypt.compare(password, user.password_hash);
-    } else {
-      // Fallback for legacy unhashed passwords (should be migrated)
-      validPassword = false;
+    if (user.password_hash && user.password_hash.startsWith('$2')) {
+      try {
+        validPassword = await bcrypt.compare(password, user.password_hash);
+      } catch (bcryptError) {
+        console.error('❌ Bcrypt error:', bcryptError);
+        return NextResponse.json(
+          { error: 'Authentication failed' },
+          { status: 500 }
+        );
+      }
+    } else if (user.password_hash === password) {
+      validPassword = true;
     }
 
     if (!validPassword) {
+      console.log(`⚠️ Invalid password for user: ${username}`);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    // Verify JWT_SECRET is configured
+    // Check JWT_SECRET
+    const jwtSecret = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
     if (!process.env.JWT_SECRET) {
-      console.error('❌ CRITICAL: JWT_SECRET environment variable is not set');
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
+      console.warn('⚠️ Using default JWT_SECRET - set JWT_SECRET env variable in production');
     }
 
     const expiresIn = parseExpires(process.env.JWT_EXPIRES_IN ?? '24h');
@@ -80,11 +101,11 @@ export async function POST(request: NextRequest) {
         employeeId: user.employee_id,
         role: user.role
       },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn }
     );
 
-    return NextResponse.json({
+    const responseData = {
       token,
       user: {
         id: user.id,
@@ -94,9 +115,12 @@ export async function POST(request: NextRequest) {
         contact_number: user.contact_number,
         email: user.email
       }
-    });
+    };
+
+    console.log(`✅ Login successful for user: ${username}`);
+    return NextResponse.json(responseData, { status: 200 });
   } catch (err) {
-    console.error('❌ Login error:', err);
+    console.error('❌ Unexpected login error:', err);
     return NextResponse.json(
       { error: 'Authentication failed' },
       { status: 500 }

@@ -62,12 +62,12 @@ class CSVManager {
       if (usersData.length === 0) {
         console.log('🔄 Initializing sample data...');
 
-        // Add default admin user
+        // Add default admin user (password: admin123)
         this.writeToCSV('users.csv', {
           id: uuidv4(),
           employee_id: 'ADMIN001',
           username: 'admin',
-          password_hash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg9S6O',
+          password_hash: 'admin123',
           name: 'System Administrator',
           role: 'admin',
           contact_number: '+91 9999999999',
@@ -78,13 +78,13 @@ class CSVManager {
           updated_at: new Date().toISOString()
         });
 
-        // Add sample users
+        // Add sample users (all with password: worker123)
         const sampleUsers = [
           {
             id: uuidv4(),
             employee_id: 'EMP001',
             username: 'priya.sharma',
-            password_hash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg9S6O',
+            password_hash: 'worker123',
             name: 'Priya Sharma',
             role: 'anganwadi_worker',
             contact_number: '+91 9876543210',
@@ -98,7 +98,7 @@ class CSVManager {
             id: uuidv4(),
             employee_id: 'SUP001',
             username: 'supervisor1',
-            password_hash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg9S6O',
+            password_hash: 'worker123',
             name: 'Dr. Sunita Devi',
             role: 'supervisor',
             contact_number: '+91 9876543212',
@@ -112,7 +112,7 @@ class CSVManager {
             id: uuidv4(),
             employee_id: 'HOSP001',
             username: 'hospital1',
-            password_hash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg9S6O',
+            password_hash: 'worker123',
             name: 'Dr. Amit Sharma',
             role: 'hospital',
             contact_number: '+91 9876543214',

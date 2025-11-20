@@ -234,6 +234,26 @@ export interface MissedVisitTicket {
   escalationLevel: 'none' | 'anganwadi' | 'district' | 'state';
 }
 
+export interface AnganwadiVisitTicket {
+  id: string;
+  anganwadiId: string;
+  workerId: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  assignedArea: string;
+  visitType: 'routine_checkup' | 'nutrition_survey' | 'vaccination' | 'emergency' | 'follow_up';
+  targetBeneficiaries: { pregnantWomen: number; children: number };
+  status: 'scheduled' | 'in_progress' | 'completed' | 'missed' | 'cancelled';
+  reportedBy: string;
+  reportedDate: string;
+  escalationLevel: 'none' | 'anganwadi' | 'district' | 'state';
+  completionDetails?: {
+    activitiesCompleted: string[];
+    issuesEncountered: string[];
+    notes?: string;
+  };
+}
+
 interface AppContextType {
   language: 'en' | 'hi';
   setLanguage: (lang: 'en' | 'hi') => void;
@@ -256,7 +276,7 @@ interface AppContextType {
   surveys: SurveyReport[];
   aiPredictions: Record<string, unknown>[];
   missedVisitTickets: MissedVisitTicket[];
-  visitTickets: Record<string, unknown>[];
+  visitTickets: AnganwadiVisitTicket[];
   treatmentTrackers: TreatmentTracker[];
 
   addPatient: (patient: Omit<Patient, 'id' | 'registrationNumber' | 'admissionDate'>) => Promise<void>;
@@ -264,10 +284,10 @@ interface AppContextType {
   updateBed: (id: string, updates: Partial<Bed>) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   addNotification: (notification: Omit<Notification, 'id'>) => Promise<void>;
-  addVisitTicket: (ticket: Record<string, unknown>) => Promise<void>;
-  updateVisitTicket: (id: string, updates: Record<string, unknown>) => Promise<void>;
-  addMissedVisitTicket: (ticket: Record<string, unknown>) => Promise<void>;
-  updateMissedVisitTicket: (id: string, updates: Record<string, unknown>) => Promise<void>;
+  addVisitTicket: (ticket: Omit<AnganwadiVisitTicket, 'id'>) => Promise<void>;
+  updateVisitTicket: (id: string, updates: Partial<AnganwadiVisitTicket>) => Promise<void>;
+  addMissedVisitTicket: (ticket: Omit<MissedVisitTicket, 'id'>) => Promise<void>;
+  updateMissedVisitTicket: (id: string, updates: Partial<MissedVisitTicket>) => Promise<void>;
   addBedRequest: (request: Omit<BedRequest, 'id'>) => Promise<void>;
   updateBedRequest: (id: string, updates: Partial<BedRequest>) => Promise<void>;
   addWorker: (worker: Omit<Worker, 'id'>) => Promise<void>;
@@ -351,7 +371,7 @@ const translations = {
     'nav.patientRegistration': 'रोगी पंजीकरण',
     'nav.bedAvailability': 'बिस्तर उपलब्धता',
     'nav.notifications': 'सूचनाएं',
-    'common.name': 'नाम',
+    'common.name': 'ना��',
     'common.age': 'आयु',
     'common.contact': 'संपर्क',
     'common.address': 'पता',
@@ -373,23 +393,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [visits, setVisits] = useState<any[]>([]);
-  const [anganwadis, setAnganwadis] = useState<any[]>([]);
-  const [workers, setWorkers] = useState<any[]>([]);
-  const [bedRequests, setBedRequests] = useState<any[]>([]);
-  const [medicalRecords, setMedicalRecords] = useState<any[]>([]);
-  const [surveys, setSurveys] = useState<any[]>([]);
-  const [aiPredictions, setAiPredictions] = useState<any[]>([]);
-  const [missedVisitTickets, setMissedVisitTickets] = useState<any[]>([]);
-  const [visitTickets, setVisitTickets] = useState<any[]>([]);
-  const [treatmentTrackers, setTreatmentTrackers] = useState<any[]>([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [anganwadis, setAnganwadis] = useState<Anganwadi[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [bedRequests, setBedRequests] = useState<BedRequest[]>([]);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [surveys, setSurveys] = useState<SurveyReport[]>([]);
+  const [aiPredictions, setAiPredictions] = useState<Record<string, unknown>[]>([]);
+  const [missedVisitTickets, setMissedVisitTickets] = useState<MissedVisitTicket[]>([]);
+  const [visitTickets, setVisitTickets] = useState<AnganwadiVisitTicket[]>([]);
+  const [treatmentTrackers, setTreatmentTrackers] = useState<TreatmentTracker[]>([]);
 
   const API_BASE_URL = '/api';
 
   const t = (key: string, params?: Record<string, string | number>): string => {
-    const translation = (translations[language] as Record<string, string>)[key] || key;
+    const translationsObj = translations[language] as Record<string, string>;
+    const translation = translationsObj[key] || key;
     if (params) {
-      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => String(params[paramKey]) || match);
+      return translation.replace(/\{(\w+)\}/g, (_match: string, paramKey: string) => String(params[paramKey]) || _match);
     }
     return translation;
   };
@@ -477,7 +498,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const hasAccess = (feature: string): boolean => {
     if (!userRole) return false;
 
-    const permissions: Record<string, string[]> = {
+    const permissions: Record<'admin' | 'anganwadi_worker' | 'supervisor' | 'hospital', string[]> = {
       admin: ['*'],
       anganwadi_worker: [
         'dashboard', 'patientRegistration', 'medicalRecords', 'visitScheduling',
@@ -494,7 +515,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ]
     };
 
-    const userPermissions = permissions[userRole] || [];
+    const userPermissions = (permissions as Record<string, string[]>)[userRole] || [];
     return userPermissions.includes('*') || userPermissions.includes(feature);
   };
 
@@ -575,19 +596,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const addVisitTicket = async (ticket: Record<string, unknown>) => {
-    setVisitTickets([...visitTickets, { ...ticket, id: `ticket-${Date.now()}` }]);
+  const addVisitTicket = async (ticket: Omit<AnganwadiVisitTicket, 'id'>) => {
+    setVisitTickets([...visitTickets, { ...ticket, id: `ticket-${Date.now()}` } as AnganwadiVisitTicket]);
   };
 
-  const updateVisitTicket = async (id: string, updates: Record<string, unknown>) => {
-    setVisitTickets(visitTickets.map(t => (t as Record<string, unknown>).id === id ? { ...t, ...updates } : t));
+  const updateVisitTicket = async (id: string, updates: Partial<AnganwadiVisitTicket>) => {
+    setVisitTickets(visitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
-  const addMissedVisitTicket = async (ticket: Record<string, unknown>) => {
-    setMissedVisitTickets([...missedVisitTickets, { ...ticket, id: `missed-${Date.now()}` }]);
+  const addMissedVisitTicket = async (ticket: Omit<MissedVisitTicket, 'id'>) => {
+    setMissedVisitTickets([...missedVisitTickets, { ...ticket, id: `missed-${Date.now()}` } as MissedVisitTicket]);
   };
 
-  const updateMissedVisitTicket = async (id: string, updates: Record<string, unknown>) => {
+  const updateMissedVisitTicket = async (id: string, updates: Partial<MissedVisitTicket>) => {
     setMissedVisitTickets(missedVisitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 

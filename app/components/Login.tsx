@@ -21,6 +21,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!credentials.username || !credentials.password) {
+      alert('Please enter both username and password');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -34,25 +40,34 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         body: JSON.stringify({
           username: credentials.username,
           password: credentials.password,
-          employee_id: credentials.employeeId
+          employee_id: credentials.employeeId || undefined
         }),
       });
 
-      if (response.ok) {
+      if (!response.ok) {
         const data = await response.json();
-        console.log('✅ Login successful:', data.user.name);
-        onLogin(data.user.role, data.user);
-      } else {
-        const errorData = await response.json();
-        console.log('❌ Login failed:', errorData.error);
-        alert(errorData.error || 'Invalid credentials. Please try again.');
+        console.error('❌ Login failed:', data.error);
+        alert(data?.error || 'Invalid credentials. Please try again.');
+        setIsLoading(false);
+        return;
       }
+
+      const data = await response.json();
+
+      if (!data.user || !data.token) {
+        console.error('❌ Invalid response data');
+        alert('Server error. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('✅ Login successful:', data.user.name);
+      onLogin(data.user.role, data.user);
     } catch (error) {
       console.error('❌ Login error:', error);
       alert('Connection error. Please check if the server is running.');
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const roleConfigs = {
