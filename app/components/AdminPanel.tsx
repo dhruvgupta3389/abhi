@@ -201,7 +201,7 @@ const AdminPanel: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData({...formData, role: e.target.value as any})}
+                  onChange={(e) => setFormData({...formData, role: e.target.value as 'anganwadi_worker' | 'supervisor' | 'hospital' | 'admin'})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
                   <option value="anganwadi_worker">Anganwadi Worker</option>

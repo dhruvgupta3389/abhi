@@ -312,7 +312,7 @@ const VisitTicketing: React.FC = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Filter by {t('common.status')}</label>
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={(e) => setFilterStatus(e.target.value as 'all' | 'open' | 'in_progress' | 'resolved' | 'escalated')}
             className="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">All Statuses</option>

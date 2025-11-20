@@ -269,7 +269,7 @@ const WorkerManagement: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
                   <select
                     value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value as any})}
+                    onChange={(e) => setFormData({...formData, role: e.target.value as 'head' | 'supervisor' | 'helper' | 'asha'})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="helper">Helper</option>
@@ -500,7 +500,7 @@ const WorkerManagement: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.filter')} by Role</label>
             <select
               value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value as any)}
+              onChange={(e) => setFilterRole(e.target.value as 'all' | 'head' | 'supervisor' | 'helper' | 'asha')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Roles</option>

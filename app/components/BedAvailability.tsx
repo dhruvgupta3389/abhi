@@ -88,7 +88,7 @@ const BedAvailability: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('bed.urgencyLevel')}</label>
               <select
                 value={formData.urgencyLevel}
-                onChange={(e) => setFormData({...formData, urgencyLevel: e.target.value as any})}
+                onChange={(e) => setFormData({...formData, urgencyLevel: e.target.value as 'low' | 'medium' | 'high' | 'critical'})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="low">{t('urgency.low')}</option>

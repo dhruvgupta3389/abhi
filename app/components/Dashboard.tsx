@@ -8,6 +8,27 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
+interface DashboardStat {
+  label: string;
+  value: number;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}
+
+interface DashboardFeature {
+  name: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface Activity {
+  id: number;
+  type: string;
+  message: string;
+  time: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 const Dashboard: React.FC = () => {
   const { patients, visits, beds, notifications, userRole, t } = useApp();
 
@@ -128,7 +149,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {dashboardData.primaryStats.map((stat: any, index: number) => {
+        {dashboardData.primaryStats.map((stat: DashboardStat, index: number) => {
           const Icon = stat.icon;
           return (
             <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -153,7 +174,7 @@ const Dashboard: React.FC = () => {
             Available Features
           </h3>
           <div className="space-y-4">
-            {dashboardData.features.map((feature: any, index: number) => {
+            {dashboardData.features.map((feature: DashboardFeature, index: number) => {
               const Icon = feature.icon;
               return (
                 <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -176,7 +197,7 @@ const Dashboard: React.FC = () => {
             Recent Activities
           </h3>
           <div className="space-y-4">
-            {recentActivities.map((activity: any) => {
+            {recentActivities.map((activity: Activity) => {
               const Icon = activity.icon;
               return (
                 <div key={activity.id} className="flex items-start space-x-3">

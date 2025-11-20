@@ -292,7 +292,7 @@ const BedRequests: React.FC = () => {
                           <label className="block text-sm font-medium text-blue-700 mb-1">Urgency</label>
                           <select
                             value={hospitalData.urgencyLevel}
-                            onChange={(e) => setHospitalData({...hospitalData, urgencyLevel: e.target.value as any})}
+                            onChange={(e) => setHospitalData({...hospitalData, urgencyLevel: e.target.value as 'routine' | 'urgent' | 'emergency'})}
                             className="w-full px-3 py-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="routine">{t('urgency.routine')}</option>
@@ -385,7 +385,7 @@ const BedRequests: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Filter by {t('common.status')}</label>
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
+              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'pending' | 'approved' | 'declined')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Statuses</option>
@@ -398,7 +398,7 @@ const BedRequests: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Urgency</label>
             <select
               value={filterUrgency}
-              onChange={(e) => setFilterUrgency(e.target.value as any)}
+              onChange={(e) => setFilterUrgency(e.target.value as 'all' | 'low' | 'medium' | 'high' | 'critical')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Urgency Levels</option>

@@ -104,7 +104,7 @@ const SurveyManagement: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('survey.appetite')}</label>
                 <select
                   value={formData.appetite}
-                  onChange={(e) => setFormData({...formData, appetite: e.target.value as any})}
+                  onChange={(e) => setFormData({...formData, appetite: e.target.value as 'poor' | 'moderate' | 'good'})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="poor">{t('survey.poor')}</option>
@@ -116,7 +116,7 @@ const SurveyManagement: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('survey.foodIntake')}</label>
                 <select
                   value={formData.foodIntake}
-                  onChange={(e) => setFormData({...formData, foodIntake: e.target.value as any})}
+                  onChange={(e) => setFormData({...formData, foodIntake: e.target.value as 'inadequate' | 'adequate' | 'excessive'})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="inadequate">{t('survey.inadequate')}</option>

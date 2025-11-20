@@ -237,7 +237,7 @@ export interface MissedVisitTicket {
 interface AppContextType {
   language: 'en' | 'hi';
   setLanguage: (lang: 'en' | 'hi') => void;
-  t: (key: string, params?: any) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 
   currentUser: User | null;
   userRole: string | null;
@@ -248,37 +248,37 @@ interface AppContextType {
   patients: Patient[];
   beds: Bed[];
   notifications: Notification[];
-  visits: any[];
-  anganwadis: any[];
-  workers: any[];
-  bedRequests: any[];
-  medicalRecords: any[];
-  surveys: any[];
-  aiPredictions: any[];
-  missedVisitTickets: any[];
-  visitTickets: any[];
-  treatmentTrackers: any[];
+  visits: Visit[];
+  anganwadis: Anganwadi[];
+  workers: Worker[];
+  bedRequests: BedRequest[];
+  medicalRecords: MedicalRecord[];
+  surveys: SurveyReport[];
+  aiPredictions: Record<string, unknown>[];
+  missedVisitTickets: MissedVisitTicket[];
+  visitTickets: Record<string, unknown>[];
+  treatmentTrackers: TreatmentTracker[];
 
   addPatient: (patient: Omit<Patient, 'id' | 'registrationNumber' | 'admissionDate'>) => Promise<void>;
   updatePatient: (id: string, updates: Partial<Patient>) => Promise<void>;
   updateBed: (id: string, updates: Partial<Bed>) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   addNotification: (notification: Omit<Notification, 'id'>) => Promise<void>;
-  addVisitTicket: (ticket: any) => Promise<void>;
-  updateVisitTicket: (id: string, updates: any) => Promise<void>;
-  addMissedVisitTicket: (ticket: any) => Promise<void>;
-  updateMissedVisitTicket: (id: string, updates: any) => Promise<void>;
-  addBedRequest: (request: any) => Promise<void>;
-  updateBedRequest: (id: string, updates: any) => Promise<void>;
-  addWorker: (worker: any) => Promise<void>;
-  addAnganwadi: (anganwadi: any) => Promise<void>;
-  addSurvey: (survey: any) => Promise<void>;
-  addMedicalRecord: (record: any) => Promise<void>;
-  addVisit: (visit: any) => Promise<void>;
-  updateVisit: (id: string, updates: any) => Promise<void>;
-  addTreatmentTracker: (tracker: any) => Promise<void>;
-  updateTreatmentTracker: (id: string, updates: any) => Promise<void>;
-  getPatientMedicalHistory: (patientId: string) => any[];
+  addVisitTicket: (ticket: Record<string, unknown>) => Promise<void>;
+  updateVisitTicket: (id: string, updates: Record<string, unknown>) => Promise<void>;
+  addMissedVisitTicket: (ticket: Record<string, unknown>) => Promise<void>;
+  updateMissedVisitTicket: (id: string, updates: Record<string, unknown>) => Promise<void>;
+  addBedRequest: (request: Omit<BedRequest, 'id'>) => Promise<void>;
+  updateBedRequest: (id: string, updates: Partial<BedRequest>) => Promise<void>;
+  addWorker: (worker: Omit<Worker, 'id'>) => Promise<void>;
+  addAnganwadi: (anganwadi: Omit<Anganwadi, 'id'>) => Promise<void>;
+  addSurvey: (survey: Omit<SurveyReport, 'id'>) => Promise<void>;
+  addMedicalRecord: (record: Omit<MedicalRecord, 'id'>) => Promise<void>;
+  addVisit: (visit: Omit<Visit, 'id'>) => Promise<void>;
+  updateVisit: (id: string, updates: Partial<Visit>) => Promise<void>;
+  addTreatmentTracker: (tracker: Omit<TreatmentTracker, 'id'>) => Promise<void>;
+  updateTreatmentTracker: (id: string, updates: Partial<TreatmentTracker>) => Promise<void>;
+  getPatientMedicalHistory: (patientId: string) => MedicalRecord[];
 
   loading: boolean;
   error: string | null;
@@ -386,10 +386,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const API_BASE_URL = '/api';
 
-  const t = (key: string, params?: any): string => {
-    const translation = (translations[language] as any)[key] || key;
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    const translation = (translations[language] as Record<string, string>)[key] || key;
     if (params) {
-      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => params[paramKey] || match);
+      return translation.replace(/\{(\w+)\}/g, (match: string, paramKey: string) => String(params[paramKey]) || match);
     }
     return translation;
   };
@@ -575,51 +575,51 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const addVisitTicket = async (ticket: any) => {
+  const addVisitTicket = async (ticket: Record<string, unknown>) => {
     setVisitTickets([...visitTickets, { ...ticket, id: `ticket-${Date.now()}` }]);
   };
 
-  const updateVisitTicket = async (id: string, updates: any) => {
-    setVisitTickets(visitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
+  const updateVisitTicket = async (id: string, updates: Record<string, unknown>) => {
+    setVisitTickets(visitTickets.map(t => (t as Record<string, unknown>).id === id ? { ...t, ...updates } : t));
   };
 
-  const addMissedVisitTicket = async (ticket: any) => {
+  const addMissedVisitTicket = async (ticket: Record<string, unknown>) => {
     setMissedVisitTickets([...missedVisitTickets, { ...ticket, id: `missed-${Date.now()}` }]);
   };
 
-  const updateMissedVisitTicket = async (id: string, updates: any) => {
+  const updateMissedVisitTicket = async (id: string, updates: Record<string, unknown>) => {
     setMissedVisitTickets(missedVisitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
-  const addBedRequest = async (request: any) => {
-    setBedRequests([...bedRequests, { ...request, id: `req-${Date.now()}` }]);
+  const addBedRequest = async (request: Omit<BedRequest, 'id'>) => {
+    setBedRequests([...bedRequests, { ...request, id: `req-${Date.now()}` } as BedRequest]);
   };
 
-  const updateBedRequest = async (id: string, updates: any) => {
+  const updateBedRequest = async (id: string, updates: Partial<BedRequest>) => {
     setBedRequests(bedRequests.map(r => r.id === id ? { ...r, ...updates } : r));
   };
 
-  const addWorker = async (worker: any) => {
-    setWorkers([...workers, { ...worker, id: `worker-${Date.now()}` }]);
+  const addWorker = async (worker: Omit<Worker, 'id'>) => {
+    setWorkers([...workers, { ...worker, id: `worker-${Date.now()}` } as Worker]);
   };
 
-  const addAnganwadi = async (anganwadi: any) => {
-    setAnganwadis([...anganwadis, { ...anganwadi, id: `center-${Date.now()}` }]);
+  const addAnganwadi = async (anganwadi: Omit<Anganwadi, 'id'>) => {
+    setAnganwadis([...anganwadis, { ...anganwadi, id: `center-${Date.now()}` } as Anganwadi]);
   };
 
-  const addSurvey = async (survey: any) => {
-    setSurveys([...surveys, { ...survey, id: `survey-${Date.now()}` }]);
+  const addSurvey = async (survey: Omit<SurveyReport, 'id'>) => {
+    setSurveys([...surveys, { ...survey, id: `survey-${Date.now()}` } as SurveyReport]);
   };
 
-  const addMedicalRecord = async (record: any) => {
-    setMedicalRecords([...medicalRecords, { ...record, id: `record-${Date.now()}` }]);
+  const addMedicalRecord = async (record: Omit<MedicalRecord, 'id'>) => {
+    setMedicalRecords([...medicalRecords, { ...record, id: `record-${Date.now()}` } as MedicalRecord]);
   };
 
-  const addVisit = async (visit: any) => {
-    setVisits([...visits, { ...visit, id: `visit-${Date.now()}` }]);
+  const addVisit = async (visit: Omit<Visit, 'id'>) => {
+    setVisits([...visits, { ...visit, id: `visit-${Date.now()}` } as Visit]);
   };
 
-  const updateVisit = async (id: string, updates: any) => {
+  const updateVisit = async (id: string, updates: Partial<Visit>) => {
     setVisits(visits.map(v => v.id === id ? { ...v, ...updates } : v));
   };
 
@@ -627,11 +627,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return medicalRecords.filter(r => r.patientId === patientId);
   };
 
-  const addTreatmentTracker = async (tracker: any) => {
-    setTreatmentTrackers([...treatmentTrackers, { ...tracker, id: `tracker-${Date.now()}` }]);
+  const addTreatmentTracker = async (tracker: Omit<TreatmentTracker, 'id'>) => {
+    setTreatmentTrackers([...treatmentTrackers, { ...tracker, id: `tracker-${Date.now()}` } as TreatmentTracker]);
   };
 
-  const updateTreatmentTracker = async (id: string, updates: any) => {
+  const updateTreatmentTracker = async (id: string, updates: Partial<TreatmentTracker>) => {
     setTreatmentTrackers(treatmentTrackers.map(tracker =>
       tracker.id === id ? { ...tracker, ...updates } : tracker
     ));
