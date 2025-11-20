@@ -44,20 +44,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, this should use bcrypt.compare but csvManager doesn't have async support
-    // For now, validate against password_hash field if it exists
-    const hasPasswordHash = user.password_hash && user.password_hash.startsWith('$2');
+    // Validate password using bcrypt
     let validPassword = false;
 
-    if (hasPasswordHash) {
-      // Password is hashed - use bcrypt for validation
-      validPassword = await bcrypt.compare(password, user.password_hash);
-    } else {
-      // Fallback for legacy unhashed passwords (should be migrated)
-      validPassword = false;
+    try {
+      if (user.password_hash && user.password_hash.startsWith('$2')) {
+        // Password is bcrypt hashed
+        validPassword = await bcrypt.compare(password, user.password_hash);
+      } else if (user.password_hash === password) {
+        // Fallback: plaintext comparison for development
+        validPassword = true;
+      }
+    } catch (bcryptError) {
+      console.error('❌ Bcrypt validation error:', bcryptError);
+      return NextResponse.json(
+        { error: 'Authentication failed' },
+        { status: 500 }
+      );
     }
 
     if (!validPassword) {
+      console.error(`❌ Invalid password for user: ${username}`);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
