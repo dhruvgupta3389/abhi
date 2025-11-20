@@ -2,23 +2,7 @@
 
 import React, { useState } from 'react';
 import { Ticket, Plus, Clock, CheckCircle, XCircle, AlertTriangle, MapPin, Users, Calendar, User, Eye, Phone } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-
-// Local type definition for visit tickets
-export type AnganwadiVisitTicket = {
-  id: string;
-  anganwadiId: string;
-  workerId: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  assignedArea: string;
-  visitType: 'routine_checkup' | 'nutrition_survey' | 'vaccination' | 'emergency' | 'follow_up';
-  targetBeneficiaries: { pregnantWomen: number; children: number };
-  status: 'scheduled' | 'in_progress' | 'completed' | 'missed' | 'cancelled';
-  reportedBy: string;
-  reportedDate: string;
-  escalationLevel: 'none' | 'anganwadi' | 'district' | 'state';
-};
+import { useApp, AnganwadiVisitTicket } from '../context/AppContext';
 
 const AnganwadiVisitTickets: React.FC = () => {
   const { visitTickets, anganwadis, workers, addVisitTicket, updateVisitTicket, t } = useApp();
