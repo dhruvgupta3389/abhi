@@ -371,7 +371,7 @@ const translations = {
     'nav.patientRegistration': 'रोगी पंजीकरण',
     'nav.bedAvailability': 'बिस्तर उपलब्धता',
     'nav.notifications': 'सूचनाएं',
-    'common.name': 'नाम',
+    'common.name': 'ना��',
     'common.age': 'आयु',
     'common.contact': 'संपर्क',
     'common.address': 'पता',
@@ -498,7 +498,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const hasAccess = (feature: string): boolean => {
     if (!userRole) return false;
 
-    const permissions: Record<string, string[]> = {
+    const permissions: Record<'admin' | 'anganwadi_worker' | 'supervisor' | 'hospital', string[]> = {
       admin: ['*'],
       anganwadi_worker: [
         'dashboard', 'patientRegistration', 'medicalRecords', 'visitScheduling',
@@ -515,7 +515,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ]
     };
 
-    const userPermissions = permissions[userRole] || [];
+    const userPermissions = (permissions as Record<string, string[]>)[userRole] || [];
     return userPermissions.includes('*') || userPermissions.includes(feature);
   };
 
