@@ -595,19 +595,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const addVisitTicket = async (ticket: Record<string, unknown>) => {
-    setVisitTickets([...visitTickets, { ...ticket, id: `ticket-${Date.now()}` }]);
+  const addVisitTicket = async (ticket: Omit<AnganwadiVisitTicket, 'id'>) => {
+    setVisitTickets([...visitTickets, { ...ticket, id: `ticket-${Date.now()}` } as AnganwadiVisitTicket]);
   };
 
-  const updateVisitTicket = async (id: string, updates: Record<string, unknown>) => {
-    setVisitTickets(visitTickets.map(t => (t as Record<string, unknown>).id === id ? { ...t, ...updates } : t));
+  const updateVisitTicket = async (id: string, updates: Partial<AnganwadiVisitTicket>) => {
+    setVisitTickets(visitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
-  const addMissedVisitTicket = async (ticket: Record<string, unknown>) => {
-    setMissedVisitTickets([...missedVisitTickets, { ...ticket, id: `missed-${Date.now()}` }]);
+  const addMissedVisitTicket = async (ticket: Omit<MissedVisitTicket, 'id'>) => {
+    setMissedVisitTickets([...missedVisitTickets, { ...ticket, id: `missed-${Date.now()}` } as MissedVisitTicket]);
   };
 
-  const updateMissedVisitTicket = async (id: string, updates: Record<string, unknown>) => {
+  const updateMissedVisitTicket = async (id: string, updates: Partial<MissedVisitTicket>) => {
     setMissedVisitTickets(missedVisitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
