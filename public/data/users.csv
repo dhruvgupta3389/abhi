@@ -1,5 +1,5 @@
 id,employee_id,username,password_hash,name,role,contact_number,email,is_active,created_by,created_at,updated_at
-57d0c5ce-00b8-4843-a161-11a1f2c83d7a,ADMIN001,admin,$2a$12$vKQH4QqCrM6VwT3Z.3Q9lOVLVRH8yPjWpQ9KQqK9RkzH1mH8X8V0O,System Administrator,admin,+91 9999999999,admin@nrc.gov.in,true,SYSTEM,2025-11-05T05:46:32.849Z,2025-11-05T05:46:32.849Z
-1b1e8107-4c4a-46ea-b130-1c6417b1d3bb,EMP001,priya.sharma,$2a$12$vKQH4QqCrM6VwT3Z.3Q9lOVLVRH8yPjWpQ9KQqK9RkzH1mH8X8V0O,Priya Sharma,anganwadi_worker,+91 9876543210,priya.sharma@gov.in,true,ADMIN001,2025-11-05T05:46:32.850Z,2025-11-05T05:46:32.850Z
-fcb5057c-4e94-473b-a03f-7d447cc45c82,SUP001,supervisor1,$2a$12$vKQH4QqCrM6VwT3Z.3Q9lOVLVRH8yPjWpQ9KQqK9RkzH1mH8X8V0O,Dr. Sunita Devi,supervisor,+91 9876543212,sunita.devi@gov.in,true,ADMIN001,2025-11-05T05:46:32.850Z,2025-11-05T05:46:32.850Z
-87128315-951d-417a-892a-c2ecfea125da,HOSP001,hospital1,$2a$12$vKQH4QqCrM6VwT3Z.3Q9lOVLVRH8yPjWpQ9KQqK9RkzH1mH8X8V0O,Dr. Amit Sharma,hospital,+91 9876543214,amit.sharma@hospital.gov.in,true,ADMIN001,2025-11-05T05:46:32.850Z,2025-11-05T05:46:32.850Z
+57d0c5ce-00b8-4843-a161-11a1f2c83d7a,ADMIN001,admin,admin123,System Administrator,admin,+91 9999999999,admin@nrc.gov.in,true,SYSTEM,2025-11-05T05:46:32.849Z,2025-11-05T05:46:32.849Z
+1b1e8107-4c4a-46ea-b130-1c6417b1d3bb,EMP001,priya.sharma,worker123,Priya Sharma,anganwadi_worker,+91 9876543210,priya.sharma@gov.in,true,ADMIN001,2025-11-05T05:46:32.850Z,2025-11-05T05:46:32.850Z
+fcb5057c-4e94-473b-a03f-7d447cc45c82,SUP001,supervisor1,worker123,Dr. Sunita Devi,supervisor,+91 9876543212,sunita.devi@gov.in,true,ADMIN001,2025-11-05T05:46:32.850Z,2025-11-05T05:46:32.850Z
+87128315-951d-417a-892a-c2ecfea125da,HOSP001,hospital1,worker123,Dr. Amit Sharma,hospital,+91 9876543214,amit.sharma@hospital.gov.in,true,ADMIN001,2025-11-05T05:46:32.850Z,2025-11-05T05:46:32.850Z
