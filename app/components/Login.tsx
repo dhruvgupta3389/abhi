@@ -224,7 +224,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Employee ID • क��्मचारी आईडी <span className="text-gray-400 text-xs">(optional)</span>
+                  Employee ID • कर्मचारी आईडी <span className="text-gray-400 text-xs">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -309,12 +309,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 )}
                 {selectedRole === 'supervisor' && (
                   <div className="bg-white p-2 rounded border">
-                    <strong>Supervisor:</strong> SUP001 / supervisor1 / super123
+                    <strong>Supervisor:</strong> SUP001 / supervisor1 / worker123
                   </div>
                 )}
                 {selectedRole === 'hospital' && (
                   <div className="bg-white p-2 rounded border">
-                    <strong>Hospital:</strong> HOSP001 / hospital1 / hosp123
+                    <strong>Hospital:</strong> HOSP001 / hospital1 / worker123
                   </div>
                 )}
               </div>
