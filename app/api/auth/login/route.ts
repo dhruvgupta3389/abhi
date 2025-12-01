@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sign, type Secret } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
-import { csvManager } from '@/lib/csvManager';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 function parseExpires(input: string | number | undefined): number {
   if (typeof input === 'number' && isFinite(input)) return input;
   const str = String(input ?? '').trim();
   const match = /^(\d+)\s*([smhdwy])?$/i.exec(str);
-  if (!match) return 24 * 60 * 60; // default 24h
+  if (!match) return 24 * 60 * 60;
   const value = parseInt(match[1], 10);
   const unit = (match[2] || 's').toLowerCase();
   switch (unit) {
@@ -44,19 +53,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const searchCriteria: any = {
-      username: username,
-      is_active: 'true'
-    };
+    // Query Supabase for user
+    const { data: users, error: queryError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .eq('is_active', true)
+      .limit(1);
 
-    if (employee_id) {
-      searchCriteria.employee_id = employee_id;
+    if (queryError) {
+      console.error('❌ Database error:', queryError);
+      return NextResponse.json(
+        { error: 'Authentication failed' },
+        { status: 500 }
+      );
     }
 
-    const user = csvManager.findOne('users.csv', searchCriteria);
-
-    if (!user) {
+    if (!users || users.length === 0) {
       console.log(`⚠️ User not found: ${username}`);
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
+
+    const user = users[0];
+
+    // If employee_id is provided, verify it matches
+    if (employee_id && user.employee_id !== employee_id) {
+      console.log(`⚠️ Employee ID mismatch for user: ${username}`);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
@@ -88,7 +113,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check JWT_SECRET
+    // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
     if (!process.env.JWT_SECRET) {
       console.warn('⚠️ Using default JWT_SECRET - set JWT_SECRET env variable in production');
