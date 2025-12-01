@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { csvManager } from '@/lib/csvManager';
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,23 +13,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('notification_date', { ascending: false })
-      .limit(100);
+    let notifications = csvManager.readCSV('notifications.csv') || [];
+    notifications = notifications.filter((n: any) => n.user_id === userId);
+    notifications = notifications.slice(0, 100);
 
-    if (error) {
-      console.error('❌ Error fetching notifications:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch notifications' },
-        { status: 500 }
-      );
-    }
-
-    console.log(`✅ Fetched ${data?.length || 0} notifications for user ${userId}`);
-    return NextResponse.json(data || [], { status: 200 });
+    console.log(`✅ Fetched ${notifications.length} notifications for user ${userId}`);
+    return NextResponse.json(notifications, { status: 200 });
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(
@@ -53,32 +33,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const notificationData = {
+      id: `notif-${Date.now()}`,
       user_id: body.userId,
       user_role: body.userRole,
       notification_type: body.type,
       title: body.title,
       message: body.message,
       priority: body.priority || 'medium',
-      action_required: body.actionRequired || false,
-      is_read: false,
+      action_required: body.actionRequired ? 'true' : 'false',
+      is_read: 'false',
       notification_date: new Date().toISOString()
     };
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .insert([notificationData])
-      .select();
+    const success = csvManager.writeToCSV('notifications.csv', notificationData);
 
-    if (error) {
-      console.error('❌ Error creating notification:', error);
-      return NextResponse.json(
-        { error: 'Failed to create notification' },
-        { status: 500 }
-      );
+    if (success) {
+      console.log('✅ Notification created successfully:', notificationData.id);
+      return NextResponse.json(notificationData, { status: 201 });
+    } else {
+      throw new Error('Failed to write notification data to CSV');
     }
-
-    console.log('✅ Notification created successfully:', data?.[0]?.id);
-    return NextResponse.json(data?.[0], { status: 201 });
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(
