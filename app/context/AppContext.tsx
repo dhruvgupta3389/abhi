@@ -75,6 +75,17 @@ export interface Notification {
   updated_at: string;
 }
 
+export interface Visit {
+  id: string;
+  patient_id: string;
+  scheduled_date: string;
+  visit_type: string;
+  status: 'pending' | 'completed' | 'cancelled';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AppContextType {
   // Language & Localization
   language: 'en' | 'hi';
