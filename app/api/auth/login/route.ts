@@ -64,11 +64,15 @@ export async function POST(request: NextRequest) {
       contact_number: users.contact_number
     };
 
+    // Generate a simple token (user ID + timestamp)
+    const token = `${users.id}:${Date.now()}`;
+
     console.log(`✅ User logged in: ${username} (Role: ${users.role})`);
     return NextResponse.json(
       {
         success: true,
         user: userResponse,
+        token: token,
         message: 'Login successful'
       },
       { status: 200 }
