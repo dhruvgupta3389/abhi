@@ -5,7 +5,7 @@ import { Zap, AlertTriangle, CheckCircle, TrendingUp, User } from 'lucide-react'
 import { useApp } from '../context/AppContext';
 
 const AIHealthPrediction: React.FC = () => {
-  const { patients, medicalRecords, t } = useApp();
+  const { patients, t } = useApp();
   const [selectedPatient, setSelectedPatient] = useState<string>('');
 
   const riskPatients = patients.filter(p => p.riskScore && p.riskScore >= 70);
