@@ -32,7 +32,7 @@ const AIHealthPrediction: React.FC = () => {
               <div>
                 <p className="text-sm text-yellow-600">Moderate Risk</p>
                 <p className="text-2xl font-bold text-yellow-800">
-                  {patients.filter(p => p.riskScore && p.riskScore >= 50 && p.riskScore < 70).length}
+                  {patients?.filter(p => p.risk_score && p.risk_score >= 50 && p.risk_score < 70)?.length || 0}
                 </p>
               </div>
             </div>
