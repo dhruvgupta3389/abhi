@@ -76,19 +76,30 @@ export interface Notification {
 }
 
 interface AppContextType {
-  currentUser: User | null;
-  setCurrentUser: (user: User) => void;
-  logout: () => void;
+  // Language & Localization
+  language: 'en' | 'hi';
+  setLanguage: (lang: 'en' | 'hi') => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
 
+  // User Management
+  currentUser: User | null;
+  userRole: string | null;
+  setCurrentUser: (user: User, role?: string) => void;
+  logout: () => void;
+  hasAccess: (feature: string) => boolean;
+
+  // Patients
   patients: Patient[];
   loadPatients: (registeredBy?: string) => Promise<void>;
   addPatient: (patient: Partial<Patient>) => Promise<Patient>;
   updatePatient: (id: string, updates: Partial<Patient>) => Promise<void>;
 
+  // Beds
   beds: Bed[];
   loadBeds: (hospitalId?: string, status?: string) => Promise<void>;
   updateBed: (id: string, updates: Partial<Bed>) => Promise<void>;
 
+  // Notifications
   notifications: Notification[];
   loadNotifications: (userId?: string) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
@@ -100,8 +111,56 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Translations
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    'nav.dashboard': 'Dashboard',
+    'nav.patientRegistration': 'Patient Registration',
+    'nav.bedAvailability': 'Bed Availability',
+    'nav.notifications': 'Notifications',
+    'nav.postHospitalization': 'Post-Hospitalization',
+    'nav.aiPrediction': 'AI Predictions',
+    'nav.medicalRecords': 'Medical Records',
+    'nav.visitScheduling': 'Visit Scheduling',
+    'nav.centerManagement': 'Center Management',
+    'nav.workerManagement': 'Worker Management',
+    'nav.visitTicketing': 'Visit Ticketing',
+    'nav.surveyManagement': 'Survey Management',
+    'nav.bedCoordination': 'Bed Coordination',
+    'nav.admissionTracking': 'Admission Tracking',
+    'nav.bedRequests': 'Bed Requests',
+    'nav.bedDashboard': 'Bed Dashboard',
+    'nav.treatmentTracker': 'Treatment Tracker',
+    'nav.medicalReports': 'Medical Reports',
+    'nav.bedDemandPrediction': 'Bed Demand Prediction',
+  },
+  hi: {
+    'nav.dashboard': 'डैशबोर्ड',
+    'nav.patientRegistration': 'रोगी पंजीकरण',
+    'nav.bedAvailability': 'बिस्तर उपलब्धता',
+    'nav.notifications': 'सूचनाएं',
+    'nav.postHospitalization': 'पोस्ट-अस्पताल',
+    'nav.aiPrediction': 'एआई भविष्यवाणी',
+    'nav.medicalRecords': 'चिकित्सा रिकॉर्ड',
+    'nav.visitScheduling': 'दौरे की योजना',
+    'nav.centerManagement': 'केंद्र प्रबंधन',
+    'nav.workerManagement': 'कार्यकर्ता प्रबंधन',
+    'nav.visitTicketing': 'दौरा टिकटिंग',
+    'nav.surveyManagement': 'सर्वेक्षण प्रबंधन',
+    'nav.bedCoordination': 'बिस्तर समन्वय',
+    'nav.admissionTracking': 'प्रवेश ट्रैकिंग',
+    'nav.bedRequests': 'बिस्तर अनुरोध',
+    'nav.bedDashboard': 'बिस्तर डैशबोर्ड',
+    'nav.treatmentTracker': 'उपचार ट्रैकर',
+    'nav.medicalReports': 'चिकित्सा रिपोर्टें',
+    'nav.bedDemandPrediction': 'बिस्तर मांग भविष्यवाणी',
+  }
+};
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [language, setLanguageState] = useState<'en' | 'hi'>('en');
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
+  const [userRole, setUserRoleState] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -109,14 +168,64 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [beds, setBeds] = useState<Bed[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const setCurrentUser = (user: User) => {
-    setCurrentUserState(user);
-    localStorage.setItem('currentUser', JSON.stringify(user));
+  // Translation function
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    let text = translations[language]?.[key] || translations['en']?.[key] || key;
+    
+    if (params) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        text = text.replace(`{${paramKey}}`, String(paramValue));
+      });
+    }
+    
+    return text;
   };
 
+  // Set language
+  const setLanguage = (lang: 'en' | 'hi') => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+  };
+
+  // Set current user
+  const setCurrentUser = (user: User, role?: string) => {
+    setCurrentUserState(user);
+    setUserRoleState(role || user.role);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('userRole', role || user.role);
+  };
+
+  // Logout
   const logout = () => {
     setCurrentUserState(null);
+    setUserRoleState(null);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('userRole');
+  };
+
+  // Check access for feature
+  const hasAccess = (feature: string): boolean => {
+    if (!userRole) return false;
+    
+    const roleAccess: Record<string, string[]> = {
+      admin: ['all'],
+      anganwadi_worker: [
+        'patientRegistration', 'medicalRecords', 'visitScheduling',
+        'bedAvailability', 'notifications', 'aiPrediction', 'postHospitalization'
+      ],
+      supervisor: [
+        'centerManagement', 'workerManagement', 'patientRegistration',
+        'medicalRecords', 'visitTicketing', 'surveyManagement',
+        'bedCoordination', 'admissionTracking', 'notifications'
+      ],
+      hospital: [
+        'bedDashboard', 'bedRequests', 'treatmentTracker', 'admissionTracking',
+        'medicalReports', 'bedDemandPrediction', 'notifications'
+      ]
+    };
+
+    const allowed = roleAccess[userRole] || [];
+    return allowed.includes('all') || allowed.includes(feature);
   };
 
   // Patient Operations
@@ -131,8 +240,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const data = await response.json();
       setPatients(data.data || []);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error loading patients');
+      const message = err instanceof Error ? err.message : 'Error loading patients';
+      setError(message);
+      console.error(message, err);
     } finally {
       setLoading(false);
     }
@@ -173,6 +285,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!response.ok) throw new Error('Failed to add patient');
       const data = await response.json();
       setPatients([...patients, data]);
+      setError(null);
       return data;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error adding patient';
@@ -195,8 +308,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!response.ok) throw new Error('Failed to update patient');
       const data = await response.json();
       setPatients(patients.map(p => p.id === id ? data : p));
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error updating patient');
+      const message = err instanceof Error ? err.message : 'Error updating patient';
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -216,8 +331,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const data = await response.json();
       setBeds(data.data || []);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error loading beds');
+      const message = err instanceof Error ? err.message : 'Error loading beds';
+      setError(message);
+      console.error(message, err);
     } finally {
       setLoading(false);
     }
@@ -235,8 +353,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!response.ok) throw new Error('Failed to update bed');
       const data = await response.json();
       setBeds(beds.map(b => b.id === id ? data : b));
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error updating bed');
+      const message = err instanceof Error ? err.message : 'Error updating bed';
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -255,8 +375,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const data = await response.json();
       setNotifications(data.data || []);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error loading notifications');
+      const message = err instanceof Error ? err.message : 'Error loading notifications';
+      setError(message);
+      console.error(message, err);
     } finally {
       setLoading(false);
     }
@@ -272,8 +395,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!response.ok) throw new Error('Failed to mark notification as read');
       const data = await response.json();
       setNotifications(notifications.map(n => n.id === id ? data : n));
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error marking notification as read');
+      const message = err instanceof Error ? err.message : 'Error marking notification as read';
+      setError(message);
       throw err;
     }
   };
@@ -289,8 +414,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!response.ok) throw new Error('Failed to add notification');
       const data = await response.json();
       setNotifications([...notifications, data]);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error adding notification');
+      const message = err instanceof Error ? err.message : 'Error adding notification';
+      setError(message);
       throw err;
     }
   };
@@ -298,9 +425,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Load current user from localStorage on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
+    const savedRole = localStorage.getItem('userRole');
+    const savedLanguage = localStorage.getItem('language') as 'en' | 'hi' | null;
+
+    if (savedLanguage) {
+      setLanguageState(savedLanguage);
+    }
+
     if (savedUser) {
       try {
-        setCurrentUserState(JSON.parse(savedUser));
+        const user = JSON.parse(savedUser);
+        setCurrentUserState(user);
+        setUserRoleState(savedRole || user.role);
       } catch (err) {
         console.error('Failed to parse saved user:', err);
       }
@@ -308,9 +444,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const value: AppContextType = {
+    language,
+    setLanguage,
+    t,
     currentUser,
+    userRole,
     setCurrentUser,
     logout,
+    hasAccess,
     patients,
     loadPatients,
     addPatient,
@@ -329,10 +470,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
+// Export both hooks for compatibility
 export const useAppContext = (): AppContextType => {
   const context = useContext(AppContext);
   if (!context) {
     throw new Error('useAppContext must be used within AppProvider');
   }
   return context;
+};
+
+// Alias for backward compatibility
+export const useApp = (): AppContextType => {
+  return useAppContext();
 };
