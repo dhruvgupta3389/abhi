@@ -1,25 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { csvManager } from '@/lib/csvManager';
+import { createClient } from '@supabase/supabase-js';
 
-async function updateBedInSupabase(id: string, data: any) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
+    const { id } = params;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) return null;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data: result, error } = await supabase
+    const { data: bed, error } = await supabase
       .from('beds')
-      .update(data)
+      .select('*')
       .eq('id', id)
-      .select();
+      .single();
 
-    if (error) return null;
-    return result?.[0] || null;
-  } catch (error) {
-    return null;
+    if (error || !bed) {
+      return NextResponse.json(
+        { error: 'Bed not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(bed, { status: 200 });
+  } catch (err) {
+    console.error('❌ Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -31,6 +50,18 @@ export async function PUT(
     const { id } = params;
     const body = await request.json();
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const updateData = {
       status: body.status,
       patient_id: body.patientId || null,
@@ -38,29 +69,73 @@ export async function PUT(
       patient_name: body.patientName || null,
       patient_type: body.patientType || null,
       nutrition_status: body.nutritionStatus || null,
-      hospital_name: body.hospitalName || null
+      hospital_name: body.hospitalName || null,
+      updated_at: new Date().toISOString()
     };
 
-    // Try Supabase first
-    let result = await updateBedInSupabase(id, updateData);
+    const { data: result, error } = await supabase
+      .from('beds')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
 
-    // Fallback to CSV
-    if (!result) {
-      const success = csvManager.updateCSV('beds.csv', id, updateData);
-      if (success) {
-        result = csvManager.findOne('beds.csv', { id });
-      }
-    }
-
-    if (result) {
-      console.log('✅ Bed updated successfully:', id);
-      return NextResponse.json(result, { status: 200 });
-    } else {
+    if (error) {
+      console.error('❌ Error updating bed:', error);
       return NextResponse.json(
-        { error: 'Bed not found' },
+        { error: 'Bed not found or update failed' },
         { status: 404 }
       );
     }
+
+    console.log(`✅ Bed updated: ${id}`);
+    return NextResponse.json(result, { status: 200 });
+  } catch (err) {
+    console.error('❌ Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    const { error } = await supabase
+      .from('beds')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Error deleting bed:', error);
+      return NextResponse.json(
+        { error: 'Bed not found or delete failed' },
+        { status: 404 }
+      );
+    }
+
+    console.log(`✅ Bed deleted: ${id}`);
+    return NextResponse.json(
+      { message: 'Bed deleted successfully' },
+      { status: 200 }
+    );
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(

@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { csvManager } from '@/lib/csvManager';
+import { createClient } from '@supabase/supabase-js';
 
-async function getPatientsFromSupabase(registeredBy?: string) {
+export async function GET(request: NextRequest) {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
+    const { searchParams } = new URL(request.url);
+    const registeredBy = searchParams.get('registeredBy') || undefined;
+    const type = searchParams.get('type') || undefined;
+    const limit = parseInt(searchParams.get('limit') || '100');
+    const offset = parseInt(searchParams.get('offset') || '0');
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) return null;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
     let query = supabase.from('patients').select('*');
@@ -16,61 +26,32 @@ async function getPatientsFromSupabase(registeredBy?: string) {
       query = query.eq('registered_by', registeredBy);
     }
 
-    const { data, error } = await query.order('registration_date', { ascending: false });
+    if (type) {
+      query = query.eq('type', type);
+    }
+
+    const { data: patients, error, count } = await query
+      .eq('is_active', true)
+      .order('registration_date', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
-      console.log('Supabase query failed:', error.message);
-      return null;
+      console.error('❌ Error fetching patients:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch patients' },
+        { status: 500 }
+      );
     }
 
-    return data || [];
-  } catch (error) {
-    console.log('Supabase import failed:', error);
-    return null;
-  }
-}
-
-async function createPatientInSupabase(patientData: any) {
-  try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) return null;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data, error } = await supabase.from('patients').insert([patientData]).select();
-
-    if (error) {
-      console.log('Supabase insert failed:', error.message);
-      return null;
-    }
-
-    return data?.[0] || null;
-  } catch (error) {
-    console.log('Supabase import failed:', error);
-    return null;
-  }
-}
-
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const registeredBy = searchParams.get('registeredBy') || undefined;
-
-    // Try Supabase first
-    let patients = await getPatientsFromSupabase(registeredBy);
-
-    // Fallback to CSV
-    if (!patients) {
-      patients = csvManager.readCSV('patients.csv') || [];
-      if (registeredBy) {
-        patients = patients.filter((p: any) => p.registered_by === registeredBy);
-      }
-    }
-
-    console.log(`✅ Fetched ${patients.length} patients`);
-    return NextResponse.json(patients, { status: 200 });
+    console.log(`✅ Fetched ${patients?.length || 0} patients`);
+    return NextResponse.json(
+      {
+        data: patients || [],
+        total: count || 0,
+        count: patients?.length || 0
+      },
+      { status: 200 }
+    );
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(
@@ -84,6 +65,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const registrationNumber = `REG-${Date.now()}`;
 
     const patientData = {
@@ -91,52 +84,45 @@ export async function POST(request: NextRequest) {
       name: body.name,
       age: body.age,
       type: body.type,
-      pregnancy_week: body.pregnancyWeek,
+      pregnancy_week: body.pregnancyWeek || null,
       contact_number: body.contactNumber,
       emergency_contact: body.emergencyContact,
       address: body.address,
-      weight: body.weight,
-      height: body.height,
-      blood_pressure: body.bloodPressure,
-      temperature: body.temperature,
-      hemoglobin: body.hemoglobin,
+      weight: body.weight || null,
+      height: body.height || null,
+      blood_pressure: body.bloodPressure || null,
+      temperature: body.temperature || null,
+      hemoglobin: body.hemoglobin || null,
       nutrition_status: body.nutritionStatus,
       medical_history: body.medicalHistory || [],
       symptoms: body.symptoms || [],
       remarks: body.remarks,
-      risk_score: body.riskScore,
+      risk_score: body.riskScore || 0,
       nutritional_deficiency: body.nutritionalDeficiency || [],
       registered_by: body.registeredBy,
       registration_date: new Date().toISOString(),
-      admission_date: body.admissionDate || new Date().toISOString().split('T')[0],
-      aadhaar_number: body.aadhaarNumber,
-      last_visit_date: body.lastVisitDate,
-      next_visit_date: body.nextVisitDate
+      aadhaar_number: body.aadhaarNumber || null,
+      last_visit_date: body.lastVisitDate || null,
+      next_visit_date: body.nextVisitDate || null,
+      is_active: true
     };
 
-    // Try Supabase first
-    let result = await createPatientInSupabase(patientData);
+    const { data, error } = await supabase
+      .from('patients')
+      .insert([patientData])
+      .select()
+      .single();
 
-    // Fallback to CSV
-    if (!result) {
-      const csvData = {
-        id: `patient-${Date.now()}`,
-        ...patientData,
-        medical_history: JSON.stringify(patientData.medical_history),
-        symptoms: JSON.stringify(patientData.symptoms),
-        nutritional_deficiency: JSON.stringify(patientData.nutritional_deficiency)
-      };
-      
-      const success = csvManager.writeToCSV('patients.csv', csvData);
-      result = success ? csvData : null;
+    if (error) {
+      console.error('❌ Error creating patient:', error);
+      return NextResponse.json(
+        { error: 'Failed to create patient' },
+        { status: 500 }
+      );
     }
 
-    if (result) {
-      console.log('✅ Patient created successfully:', result.id);
-      return NextResponse.json(result, { status: 201 });
-    } else {
-      throw new Error('Failed to create patient');
-    }
+    console.log(`✅ Patient created: ${data.id}`);
+    return NextResponse.json(data, { status: 201 });
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(

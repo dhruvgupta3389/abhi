@@ -44,25 +44,32 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         }),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        console.error('❌ Failed to parse response:', parseError);
-        alert('Server error. Please try again.');
-        setIsLoading(false);
-        return;
+      // Read response as text first to avoid stream read issues
+      let data: any = {};
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('❌ Failed to parse response text:', parseError);
+          console.error('Response text:', responseText);
+          data = { error: 'Invalid server response' };
+        }
       }
 
+      // Check if login was successful
       if (!response.ok) {
-        console.error('❌ Login failed:', data?.error);
-        alert(data?.error || 'Invalid credentials. Please try again.');
+        const errorMessage = data?.error || 'Invalid credentials. Please try again.';
+        console.error('❌ Login failed:', errorMessage, 'Status:', response.status);
+        alert(errorMessage);
         setIsLoading(false);
         return;
       }
 
-      if (!data.user || !data.token) {
-        console.error('❌ Invalid response data');
+      // Validate user data
+      if (!data.user) {
+        console.error('❌ Invalid response data: missing user');
         alert('Server error. Please try again.');
         setIsLoading(false);
         return;
@@ -73,6 +80,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     } catch (error) {
       console.error('❌ Login error:', error);
       alert('Connection error. Please check if the server is running.');
+      setIsLoading(false);
+    } finally {
       setIsLoading(false);
     }
   };

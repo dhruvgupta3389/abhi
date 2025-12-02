@@ -1,71 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { csvManager } from '@/lib/csvManager';
-
-async function getNotificationsFromSupabase(userId: string) {
-  try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) return null;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('notification_date', { ascending: false })
-      .limit(100);
-
-    if (error) return null;
-    return data || [];
-  } catch (error) {
-    return null;
-  }
-}
-
-async function createNotificationInSupabase(data: any) {
-  try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) return null;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data: result, error } = await supabase.from('notifications').insert([data]).select();
-
-    if (error) return null;
-    return result?.[0] || null;
-  } catch (error) {
-    return null;
-  }
-}
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const userId = searchParams.get('userId') || undefined;
+    const userRole = searchParams.get('userRole') || undefined;
+    const isRead = searchParams.get('isRead');
 
-    if (!userId) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
       return NextResponse.json(
-        { error: 'userId parameter is required' },
-        { status: 400 }
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
       );
     }
 
-    // Try Supabase first
-    let notifications = await getNotificationsFromSupabase(userId);
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    let query = supabase.from('notifications').select('*');
 
-    // Fallback to CSV
-    if (!notifications) {
-      notifications = csvManager.readCSV('notifications.csv') || [];
-      notifications = notifications.filter((n: any) => n.user_id === userId);
-      notifications = notifications.slice(0, 100);
+    if (userId) {
+      query = query.eq('user_id', userId);
     }
 
-    console.log(`✅ Fetched ${notifications.length} notifications for user ${userId}`);
-    return NextResponse.json(notifications, { status: 200 });
+    if (userRole) {
+      query = query.eq('user_role', userRole);
+    }
+
+    if (isRead !== null && isRead !== undefined) {
+      query = query.eq('is_read', isRead === 'true');
+    }
+
+    const { data: notifications, error } = await query
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      console.error('❌ Error fetching notifications:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch notifications' },
+        { status: 500 }
+      );
+    }
+
+    console.log(`✅ Fetched ${notifications?.length || 0} notifications`);
+    return NextResponse.json(
+      { data: notifications || [] },
+      { status: 200 }
+    );
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(
@@ -79,40 +63,48 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const notificationData = {
-      user_id: body.userId,
+      user_id: body.userId || null,
       user_role: body.userRole,
-      notification_type: body.type,
+      type: body.type,
       title: body.title,
       message: body.message,
-      priority: body.priority || 'medium',
+      priority: body.priority || 'normal',
       action_required: body.actionRequired || false,
       is_read: false,
-      notification_date: new Date().toISOString()
+      action_url: body.actionUrl || null,
+      related_entity_id: body.relatedEntityId || null,
+      related_entity_type: body.relatedEntityType || null
     };
 
-    // Try Supabase first
-    let result = await createNotificationInSupabase(notificationData);
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([notificationData])
+      .select()
+      .single();
 
-    // Fallback to CSV
-    if (!result) {
-      const csvData = {
-        id: `notif-${Date.now()}`,
-        ...notificationData,
-        action_required: notificationData.action_required ? 'true' : 'false',
-        is_read: 'false'
-      };
-      
-      const success = csvManager.writeToCSV('notifications.csv', csvData);
-      result = success ? csvData : null;
+    if (error) {
+      console.error('❌ Error creating notification:', error);
+      return NextResponse.json(
+        { error: 'Failed to create notification' },
+        { status: 500 }
+      );
     }
 
-    if (result) {
-      console.log('✅ Notification created successfully:', result.id);
-      return NextResponse.json(result, { status: 201 });
-    } else {
-      throw new Error('Failed to create notification');
-    }
+    console.log(`✅ Notification created: ${data.id}`);
+    return NextResponse.json(data, { status: 201 });
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(

@@ -1,25 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { csvManager } from '@/lib/csvManager';
+import { createClient } from '@supabase/supabase-js';
 
-async function updatePatientInSupabase(id: string, data: any) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
+    const { id } = params;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) return null;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data: result, error } = await supabase
+    const { data: patient, error } = await supabase
       .from('patients')
-      .update(data)
+      .select('*')
       .eq('id', id)
-      .select();
+      .single();
 
-    if (error) return null;
-    return result?.[0] || null;
-  } catch (error) {
-    return null;
+    if (error || !patient) {
+      return NextResponse.json(
+        { error: 'Patient not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(patient, { status: 200 });
+  } catch (err) {
+    console.error('❌ Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -30,6 +49,18 @@ export async function PUT(
   try {
     const { id } = params;
     const body = await request.json();
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const updateData = {
       name: body.name,
@@ -52,36 +83,73 @@ export async function PUT(
       nutritional_deficiency: body.nutritionalDeficiency,
       last_visit_date: body.lastVisitDate,
       next_visit_date: body.nextVisitDate,
-      bed_id: body.bedId
+      bed_id: body.bedId,
+      updated_at: new Date().toISOString()
     };
 
-    // Try Supabase first
-    let result = await updatePatientInSupabase(id, updateData);
+    const { data: result, error } = await supabase
+      .from('patients')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
 
-    // Fallback to CSV
-    if (!result) {
-      const csvUpdateData = {
-        ...updateData,
-        medical_history: updateData.medical_history ? JSON.stringify(updateData.medical_history) : undefined,
-        symptoms: updateData.symptoms ? JSON.stringify(updateData.symptoms) : undefined,
-        nutritional_deficiency: updateData.nutritional_deficiency ? JSON.stringify(updateData.nutritional_deficiency) : undefined
-      };
-
-      const success = csvManager.updateCSV('patients.csv', id, csvUpdateData);
-      if (success) {
-        result = csvManager.findOne('patients.csv', { id });
-      }
-    }
-
-    if (result) {
-      console.log('✅ Patient updated successfully:', id);
-      return NextResponse.json(result, { status: 200 });
-    } else {
+    if (error) {
+      console.error('❌ Error updating patient:', error);
       return NextResponse.json(
-        { error: 'Patient not found' },
+        { error: 'Patient not found or update failed' },
         { status: 404 }
       );
     }
+
+    console.log(`✅ Patient updated: ${id}`);
+    return NextResponse.json(result, { status: 200 });
+  } catch (err) {
+    console.error('❌ Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    const { error } = await supabase
+      .from('patients')
+      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Error deleting patient:', error);
+      return NextResponse.json(
+        { error: 'Patient not found or delete failed' },
+        { status: 404 }
+      );
+    }
+
+    console.log(`✅ Patient deleted (soft): ${id}`);
+    return NextResponse.json(
+      { message: 'Patient deleted successfully' },
+      { status: 200 }
+    );
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(

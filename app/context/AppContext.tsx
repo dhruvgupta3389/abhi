@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 export interface User {
   id: string;
   employee_id: string;
+  username: string;
   name: string;
   role: 'anganwadi_worker' | 'supervisor' | 'hospital' | 'admin';
   contact_number?: string;
@@ -13,291 +14,96 @@ export interface User {
 
 export interface Patient {
   id: string;
-  registrationNumber: string;
-  aadhaarNumber?: string;
+  registration_number: string;
+  aadhaar_number?: string;
   name: string;
   age: number;
-  type: 'child' | 'pregnant';
-  pregnancyWeek?: number;
-  contactNumber: string;
-  emergencyContact?: string;
+  type: 'child' | 'pregnant_woman' | 'lactating_mother';
+  pregnancy_week?: number;
+  contact_number: string;
+  emergency_contact?: string;
   address: string;
-  weight: number;
-  height: number;
-  bloodPressure?: string;
+  weight?: number;
+  height?: number;
+  blood_pressure?: string;
   temperature?: number;
   hemoglobin?: number;
-  nutritionStatus: 'normal' | 'malnourished' | 'severely_malnourished';
-  medicalHistory: string[];
-  symptoms: string[];
-  documents: string[];
-  photos: string[];
+  nutrition_status: string;
+  medical_history?: any[];
+  symptoms?: any[];
   remarks?: string;
-  riskScore?: number;
-  nutritionalDeficiency: string[];
-  bedId?: string;
-  lastVisitDate?: string;
-  nextVisitDate?: string;
-  registeredBy?: string;
-  registrationDate: string;
-  admissionDate: string;
-  nextVisit: string;
+  risk_score?: number;
+  nutritional_deficiency?: any[];
+  bed_id?: string;
+  last_visit_date?: string;
+  next_visit_date?: string;
+  registered_by?: string;
+  registration_date: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Bed {
   id: string;
-  hospitalId: string;
-  number: string;
+  hospital_id: string;
+  bed_number: string;
   ward: string;
-  status: 'available' | 'occupied' | 'maintenance';
-  patientId?: string;
-  admissionDate?: string;
-  patientName?: string;
-  patientType?: string;
-  nutritionStatus?: string;
-  hospitalName?: string;
+  status: 'available' | 'occupied' | 'maintenance' | 'reserved';
+  patient_id?: string;
+  admission_date?: string;
+  patient_name?: string;
+  patient_type?: string;
+  nutrition_status?: string;
+  hospital_name?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Notification {
   id: string;
-  userRole: string;
+  user_id?: string;
+  user_role: string;
   type: string;
   title: string;
   message: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  actionRequired: boolean;
-  read: boolean;
-  date: string;
-}
-
-export interface Anganwadi {
-  id: string;
-  name: string;
-  code: string;
-  location: {
-    area: string;
-    district: string;
-    state: string;
-    pincode?: string;
-    coordinates: { latitude: number; longitude: number };
-  };
-  supervisor: { name: string; contactNumber: string; employeeId: string };
-  capacity: { pregnantWomen: number; children: number };
-  facilities: string[];
-  coverageAreas: string[];
-  establishedDate: string;
-  isActive: boolean;
-}
-
-export interface Worker {
-  id: string;
-  employeeId: string;
-  name: string;
-  role: 'head' | 'supervisor' | 'helper' | 'asha';
-  anganwadiId?: string;
-  contactNumber: string;
-  address?: string;
-  assignedAreas: string[];
-  qualifications: string[];
-  workingHours: { start: string; end: string };
-  emergencyContact: { name: string; relation: string; contactNumber: string };
-  joinDate: string;
-  isActive: boolean;
-}
-
-export interface BedRequest {
-  id: string;
-  patientId: string;
-  requestedBy: string;
-  requestDate: string;
-  urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
-  medicalJustification: string;
-  currentCondition: string;
-  estimatedStayDuration: number;
-  specialRequirements?: string;
-  status: 'pending' | 'approved' | 'declined' | 'cancelled';
-  reviewedBy?: string;
-  reviewDate?: string;
-  reviewComments?: string;
-  hospitalReferral?: {
-    hospitalName: string;
-    contactNumber: string;
-    referralReason: string;
-    referralDate: string;
-    urgencyLevel: 'routine' | 'urgent' | 'emergency';
-  };
-}
-
-export interface SurveyReport {
-  id: string;
-  patientId: string;
-  date: string;
-  observations: string;
-  nutritionData: {
-    appetite: 'poor' | 'moderate' | 'good';
-    foodIntake: 'inadequate' | 'adequate' | 'excessive';
-    supplements: string[];
-  };
-  symptoms: string[];
-  recommendations: string[];
-  healthWorkerId: string;
-}
-
-export interface Visit {
-  id: string;
-  patientId: string;
-  healthWorkerId: string;
-  scheduledDate: string;
-  actualDate?: string;
-  status: 'scheduled' | 'completed' | 'missed' | 'rescheduled';
-  notes?: string;
-}
-
-export interface MedicalRecord {
-  id: string;
-  patientId: string;
-  date: string;
-  visitType: 'routine' | 'emergency' | 'follow_up' | 'admission' | 'discharge';
-  healthWorkerId: string;
-  vitals: {
-    weight: number;
-    height: number;
-    temperature?: number;
-    bloodPressure?: string;
-    pulse?: number;
-    respiratoryRate?: number;
-    oxygenSaturation?: number;
-  };
-  symptoms: string[];
-  diagnosis: string[];
-  treatment: string[];
-  medications: { name: string; dosage: string; frequency: string; duration: string }[];
-  nutritionAssessment: {
-    appetite: 'poor' | 'moderate' | 'good';
-    foodIntake: 'inadequate' | 'adequate' | 'excessive';
-    supplements: string[];
-    dietPlan?: string;
-  };
-  labResults?: {
-    hemoglobin?: number;
-    bloodSugar?: number;
-    proteinLevel?: number;
-  };
-  notes?: string;
-  nextVisitDate?: string;
-  followUpRequired: boolean;
-}
-
-export interface TreatmentTracker {
-  id: string;
-  patientId: string;
-  hospitalId: string;
-  admissionDate: string;
-  treatmentPlan: string[];
-  medicineSchedule: any[];
-  doctorRemarks: string[];
-  dailyProgress: { date: string; weight: number; appetite: 'poor' | 'moderate' | 'good'; notes: string }[];
-  labReports: any[];
-  dischargeDate?: string;
-  dischargeSummary?: {
-    finalWeight: number;
-    nextCheckupDate: string;
-    healthImprovement: string;
-    followUpInstructions: string[];
-  };
-}
-
-export interface MissedVisitTicket {
-  id: string;
-  patientId: string;
-  visitId: string;
-  dateReported: string;
-  reportedBy: string;
-  missedConditions: Record<string, boolean>;
-  attemptDetails: {
-    timeOfAttempt: string;
-    locationVisited: string;
-    contactMethod: 'home_visit' | 'phone_call' | 'center_visit' | string;
-  };
-  patientCondition: {
-    currentHealthStatus: string;
-    urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
-    visibleSymptoms: string[];
-    familyReportedConcerns: string[];
-  };
-  actionsTaken: string[];
-  followUpRequired: boolean;
-  nextAttemptDate: string;
-  supervisorNotified: boolean;
-  status: 'open' | 'in_progress' | 'resolved' | 'escalated';
-  escalationLevel: 'none' | 'anganwadi' | 'district' | 'state';
-}
-
-export interface AnganwadiVisitTicket {
-  id: string;
-  anganwadiId: string;
-  workerId: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  assignedArea: string;
-  visitType: 'routine_checkup' | 'nutrition_survey' | 'vaccination' | 'emergency' | 'follow_up';
-  targetBeneficiaries: { pregnantWomen: number; children: number };
-  status: 'scheduled' | 'in_progress' | 'completed' | 'missed' | 'cancelled';
-  reportedBy: string;
-  reportedDate: string;
-  escalationLevel: 'none' | 'anganwadi' | 'district' | 'state';
-  completionDetails?: {
-    activitiesCompleted: string[];
-    issuesEncountered: string[];
-    notes?: string;
-  };
+  priority: 'low' | 'normal' | 'high' | 'critical';
+  action_required: boolean;
+  is_read: boolean;
+  action_url?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface AppContextType {
+  // Language & Localization
   language: 'en' | 'hi';
   setLanguage: (lang: 'en' | 'hi') => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 
+  // User Management
   currentUser: User | null;
   userRole: string | null;
-  setCurrentUser: (user: User, role: string) => void;
+  setCurrentUser: (user: User, role?: string) => void;
   logout: () => void;
   hasAccess: (feature: string) => boolean;
 
+  // Patients
   patients: Patient[];
-  beds: Bed[];
-  notifications: Notification[];
-  visits: Visit[];
-  anganwadis: Anganwadi[];
-  workers: Worker[];
-  bedRequests: BedRequest[];
-  medicalRecords: MedicalRecord[];
-  surveys: SurveyReport[];
-  aiPredictions: Record<string, unknown>[];
-  missedVisitTickets: MissedVisitTicket[];
-  visitTickets: AnganwadiVisitTicket[];
-  treatmentTrackers: TreatmentTracker[];
-
-  addPatient: (patient: Omit<Patient, 'id' | 'registrationNumber' | 'admissionDate'>) => Promise<void>;
+  loadPatients: (registeredBy?: string) => Promise<void>;
+  addPatient: (patient: Partial<Patient>) => Promise<Patient>;
   updatePatient: (id: string, updates: Partial<Patient>) => Promise<void>;
+
+  // Beds
+  beds: Bed[];
+  loadBeds: (hospitalId?: string, status?: string) => Promise<void>;
   updateBed: (id: string, updates: Partial<Bed>) => Promise<void>;
+
+  // Notifications
+  notifications: Notification[];
+  loadNotifications: (userId?: string) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
-  addNotification: (notification: Omit<Notification, 'id'>) => Promise<void>;
-  addVisitTicket: (ticket: Omit<AnganwadiVisitTicket, 'id'>) => Promise<void>;
-  updateVisitTicket: (id: string, updates: Partial<AnganwadiVisitTicket>) => Promise<void>;
-  addMissedVisitTicket: (ticket: Omit<MissedVisitTicket, 'id'>) => Promise<void>;
-  updateMissedVisitTicket: (id: string, updates: Partial<MissedVisitTicket>) => Promise<void>;
-  addBedRequest: (request: Omit<BedRequest, 'id'>) => Promise<void>;
-  updateBedRequest: (id: string, updates: Partial<BedRequest>) => Promise<void>;
-  addWorker: (worker: Omit<Worker, 'id'>) => Promise<void>;
-  addAnganwadi: (anganwadi: Omit<Anganwadi, 'id'>) => Promise<void>;
-  addSurvey: (survey: Omit<SurveyReport, 'id'>) => Promise<void>;
-  addMedicalRecord: (record: Omit<MedicalRecord, 'id'>) => Promise<void>;
-  addVisit: (visit: Omit<Visit, 'id'>) => Promise<void>;
-  updateVisit: (id: string, updates: Partial<Visit>) => Promise<void>;
-  addTreatmentTracker: (tracker: Omit<TreatmentTracker, 'id'>) => Promise<void>;
-  updateTreatmentTracker: (id: string, updates: Partial<TreatmentTracker>) => Promise<void>;
-  getPatientMedicalHistory: (patientId: string) => MedicalRecord[];
+  addNotification: (notification: Omit<Notification, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
 
   loading: boolean;
   error: string | null;
@@ -305,10 +111,9 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const translations = {
+// Translations
+const translations: Record<string, Record<string, string>> = {
   en: {
-    'system.title': 'NRC Management System',
-    'system.subtitle': 'AI-Assisted Healthcare Management for SAM Children & Pregnant Women',
     'nav.dashboard': 'Dashboard',
     'nav.patientRegistration': 'Patient Registration',
     'nav.bedAvailability': 'Bed Availability',
@@ -328,478 +133,353 @@ const translations = {
     'nav.treatmentTracker': 'Treatment Tracker',
     'nav.medicalReports': 'Medical Reports',
     'nav.bedDemandPrediction': 'Bed Demand Prediction',
-    'common.name': 'Name',
-    'common.age': 'Age',
-    'common.contact': 'Contact',
-    'common.address': 'Address',
-    'common.weight': 'Weight',
-    'common.height': 'Height',
-    'common.status': 'Status',
-    'common.date': 'Date',
-    'common.time': 'Time',
-    'common.actions': 'Actions',
-    'common.cancel': 'Cancel',
-    'common.submit': 'Submit',
-    'common.save': 'Save',
-    'common.edit': 'Edit',
-    'common.delete': 'Delete',
-    'common.view': 'View',
-    'common.update': 'Update',
-    'common.approve': 'Approve',
-    'common.decline': 'Decline',
-    'common.pending': 'Pending',
-    'common.approved': 'Approved',
-    'common.declined': 'Declined',
-    'common.years': 'years',
-    'common.yearsOld': 'years old',
-    'patient.patient': 'Patient',
-    'patient.child': 'Child',
-    'patient.pregnant': 'Pregnant Woman',
-    'patient.nutritionStatus': 'Nutrition Status',
-    'patient.normal': 'Normal',
-    'patient.malnourished': 'Malnourished',
-    'patient.severelyMalnourished': 'Severely Malnourished',
-    'bed.available': 'Available',
-    'bed.occupied': 'Occupied',
-    'bed.maintenance': 'Maintenance'
   },
   hi: {
-    'system.title': 'एनआरसी प्रबंधन प्रणाली',
-    'system.subtitle': 'एआई-सहायक स्वास्थ्य प्रबंधन SAM बच्चों और गर्भवती महिलाओं के लिए',
     'nav.dashboard': 'डैशबोर्ड',
     'nav.patientRegistration': 'रोगी पंजीकरण',
     'nav.bedAvailability': 'बिस्तर उपलब्धता',
     'nav.notifications': 'सूचनाएं',
-    'common.name': 'नाम',
-    'common.age': 'आयु',
-    'common.contact': 'संपर्क',
-    'common.address': 'पता',
-    'common.weight': 'वजन',
-    'common.height': 'ऊंचाई',
-    'common.status': 'स्थिति',
-    'patient.child': 'बच्चा',
-    'patient.pregnant': 'गर्भवती महिला'
+    'nav.postHospitalization': 'पोस्ट-अस्पताल',
+    'nav.aiPrediction': 'एआई भविष्यवाणी',
+    'nav.medicalRecords': 'चिकित्सा रिकॉर्ड',
+    'nav.visitScheduling': 'दौरे की योजना',
+    'nav.centerManagement': 'केंद्र प्रबंधन',
+    'nav.workerManagement': 'कार्यकर्ता प्रबंधन',
+    'nav.visitTicketing': 'दौरा टिकटिंग',
+    'nav.surveyManagement': 'सर्वेक्षण प्रबंधन',
+    'nav.bedCoordination': 'बिस्तर समन्वय',
+    'nav.admissionTracking': 'प्रवेश ट्रैकिंग',
+    'nav.bedRequests': 'बिस्तर अनुरोध',
+    'nav.bedDashboard': 'बिस्तर डैशबोर्ड',
+    'nav.treatmentTracker': 'उपचार ट्रैकर',
+    'nav.medicalReports': 'चिकित्सा रिपोर्टें',
+    'nav.bedDemandPrediction': 'बिस्तर मांग भविष्यवाणी',
   }
 };
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<'en' | 'hi'>('en');
+  const [language, setLanguageState] = useState<'en' | 'hi'>('en');
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRoleState] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [anganwadis, setAnganwadis] = useState<Anganwadi[]>([]);
-  const [workers, setWorkers] = useState<Worker[]>([]);
-  const [bedRequests, setBedRequests] = useState<BedRequest[]>([]);
-  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
-  const [surveys, setSurveys] = useState<SurveyReport[]>([]);
-  const [aiPredictions, setAiPredictions] = useState<Record<string, unknown>[]>([]);
-  const [missedVisitTickets, setMissedVisitTickets] = useState<MissedVisitTicket[]>([]);
-  const [visitTickets, setVisitTickets] = useState<AnganwadiVisitTicket[]>([]);
-  const [treatmentTrackers, setTreatmentTrackers] = useState<TreatmentTracker[]>([]);
 
-  const API_BASE_URL = '/api';
-
+  // Translation function
   const t = (key: string, params?: Record<string, string | number>): string => {
-    const translationsObj = translations[language] as Record<string, string>;
-    const translation = translationsObj[key] || key;
+    let text = translations[language]?.[key] || translations['en']?.[key] || key;
+    
     if (params) {
-      return translation.replace(/\{(\w+)\}/g, (_match: string, paramKey: string) => String(params[paramKey]) || _match);
-    }
-    return translation;
-  };
-
-  const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        text = text.replace(`{${paramKey}}`, String(paramValue));
       });
-
-      if (!response.ok) {
-        throw new Error(`API call failed: ${response.statusText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error(`❌ API call failed for ${endpoint}:`, error);
-      throw error;
     }
+    
+    return text;
   };
 
-  const loadAllData = async () => {
+  // Set language
+  const setLanguage = (lang: 'en' | 'hi') => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+  };
+
+  // Set current user
+  const setCurrentUser = (user: User, role?: string) => {
+    setCurrentUserState(user);
+    setUserRoleState(role || user.role);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('userRole', role || user.role);
+  };
+
+  // Logout
+  const logout = () => {
+    setCurrentUserState(null);
+    setUserRoleState(null);
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('userRole');
+  };
+
+  // Check access for feature
+  const hasAccess = (feature: string): boolean => {
+    if (!userRole) return false;
+    
+    const roleAccess: Record<string, string[]> = {
+      admin: ['all'],
+      anganwadi_worker: [
+        'patientRegistration', 'medicalRecords', 'visitScheduling',
+        'bedAvailability', 'notifications', 'aiPrediction', 'postHospitalization'
+      ],
+      supervisor: [
+        'centerManagement', 'workerManagement', 'patientRegistration',
+        'medicalRecords', 'visitTicketing', 'surveyManagement',
+        'bedCoordination', 'admissionTracking', 'notifications'
+      ],
+      hospital: [
+        'bedDashboard', 'bedRequests', 'treatmentTracker', 'admissionTracking',
+        'medicalReports', 'bedDemandPrediction', 'notifications'
+      ]
+    };
+
+    const allowed = roleAccess[userRole] || [];
+    return allowed.includes('all') || allowed.includes(feature);
+  };
+
+  // Patient Operations
+  const loadPatients = async (registeredBy?: string) => {
     try {
       setLoading(true);
+      const params = new URLSearchParams();
+      if (registeredBy) params.append('registeredBy', registeredBy);
+
+      const response = await fetch(`/api/patients?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to load patients');
+
+      const data = await response.json();
+      setPatients(data.data || []);
       setError(null);
-      console.log('🔄 Loading all data from API...');
-
-      try {
-        const patientsData = await apiCall('/patients');
-        setPatients(patientsData);
-        console.log('✅ Patients loaded:', patientsData.length);
-      } catch (err) {
-        console.error('❌ Failed to load patients:', err);
-      }
-
-      try {
-        const bedsData = await apiCall('/beds');
-        setBeds(bedsData);
-        console.log('✅ Beds loaded:', bedsData.length);
-      } catch (err) {
-        console.error('❌ Failed to load beds:', err);
-      }
-
-      if (userRole) {
-        try {
-          const notificationsData = await apiCall(`/notifications/role/${userRole}`);
-          setNotifications(notificationsData);
-          console.log('✅ Notifications loaded:', notificationsData.length);
-        } catch (err) {
-          console.error('❌ Failed to load notifications:', err);
-        }
-      }
-
-      console.log('✅ All data loaded successfully');
     } catch (err) {
-      console.error('❌ Failed to load data:', err);
-      setError('Failed to load data. Please check if the server is running.');
+      const message = err instanceof Error ? err.message : 'Error loading patients';
+      setError(message);
+      console.error(message, err);
     } finally {
       setLoading(false);
     }
   };
 
-  const setCurrentUser = (user: User, role: string) => {
-    setCurrentUserState(user);
-    setUserRole(role);
-    const loginTime = new Date().getTime();
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('userRole', role);
-    localStorage.setItem('loginTime', loginTime.toString());
-  };
-
-  const logout = () => {
-    setCurrentUserState(null);
-    setUserRole(null);
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('loginTime');
-    localStorage.removeItem('lastActivity');
-  };
-
-  const hasAccess = (feature: string): boolean => {
-    if (!userRole) return false;
-
-    const permissions: Record<'admin' | 'anganwadi_worker' | 'supervisor' | 'hospital', string[]> = {
-      admin: ['*'],
-      anganwadi_worker: [
-        'dashboard', 'patientRegistration', 'medicalRecords', 'visitScheduling',
-        'bedAvailability', 'notifications', 'aiPrediction', 'postHospitalization'
-      ],
-      supervisor: [
-        'dashboard', 'centerManagement', 'workerManagement', 'patientRegistration',
-        'medicalRecords', 'visitTicketing', 'surveyManagement', 'bedCoordination',
-        'admissionTracking', 'notifications', 'bedRequests'
-      ],
-      hospital: [
-        'dashboard', 'bedDashboard', 'notifications', 'treatmentTracker',
-        'medicalReports', 'bedDemandPrediction', 'patientRegistration', 'medicalRecords'
-      ]
-    };
-
-    const userPermissions = (permissions as Record<string, string[]>)[userRole] || [];
-    return userPermissions.includes('*') || userPermissions.includes(feature);
-  };
-
-  const addPatient = async (patientData: Omit<Patient, 'id' | 'registrationNumber' | 'admissionDate'>) => {
+  const addPatient = async (patient: Partial<Patient>): Promise<Patient> => {
     try {
-      console.log('📝 Adding new patient via API...');
-      const response = await apiCall('/patients', {
+      setLoading(true);
+      const response = await fetch('/api/patients', {
         method: 'POST',
-        body: JSON.stringify(patientData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: patient.name,
+          age: patient.age,
+          type: patient.type,
+          pregnancy_week: patient.pregnancy_week,
+          contact_number: patient.contact_number,
+          emergency_contact: patient.emergency_contact,
+          address: patient.address,
+          weight: patient.weight,
+          height: patient.height,
+          blood_pressure: patient.blood_pressure,
+          temperature: patient.temperature,
+          hemoglobin: patient.hemoglobin,
+          nutrition_status: patient.nutrition_status,
+          medical_history: patient.medical_history || [],
+          symptoms: patient.symptoms || [],
+          remarks: patient.remarks,
+          risk_score: patient.risk_score,
+          nutritional_deficiency: patient.nutritional_deficiency || [],
+          registered_by: currentUser?.id,
+          aadhaar_number: patient.aadhaar_number,
+          last_visit_date: patient.last_visit_date,
+          next_visit_date: patient.next_visit_date
+        })
       });
 
-      console.log('✅ Patient added successfully:', response);
-      await loadAllData();
-    } catch (error) {
-      console.error('❌ Failed to add patient:', error);
-      setError('Failed to add patient. Please try again.');
+      if (!response.ok) throw new Error('Failed to add patient');
+      const data = await response.json();
+      setPatients([...patients, data]);
+      setError(null);
+      return data;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error adding patient';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
   const updatePatient = async (id: string, updates: Partial<Patient>) => {
     try {
-      console.log(`📝 Updating patient ${id} via API...`);
-      await apiCall(`/patients/${id}`, {
+      setLoading(true);
+      const response = await fetch(`/api/patients/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
       });
 
-      console.log('✅ Patient updated successfully');
-      await loadAllData();
-    } catch (error) {
-      console.error('❌ Failed to update patient:', error);
-      setError('Failed to update patient. Please try again.');
+      if (!response.ok) throw new Error('Failed to update patient');
+      const data = await response.json();
+      setPatients(patients.map(p => p.id === id ? data : p));
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error updating patient';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bed Operations
+  const loadBeds = async (hospitalId?: string, status?: string) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (hospitalId) params.append('hospitalId', hospitalId);
+      if (status) params.append('status', status);
+
+      const response = await fetch(`/api/beds?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to load beds');
+
+      const data = await response.json();
+      setBeds(data.data || []);
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error loading beds';
+      setError(message);
+      console.error(message, err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateBed = async (id: string, updates: Partial<Bed>) => {
     try {
-      console.log(`📝 Updating bed ${id} via API...`);
-      await apiCall(`/beds/${id}`, {
+      setLoading(true);
+      const response = await fetch(`/api/beds/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
       });
 
-      console.log('✅ Bed updated successfully');
-      await loadAllData();
-    } catch (error) {
-      console.error('❌ Failed to update bed:', error);
-      setError('Failed to update bed. Please try again.');
+      if (!response.ok) throw new Error('Failed to update bed');
+      const data = await response.json();
+      setBeds(beds.map(b => b.id === id ? data : b));
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error updating bed';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Notification Operations
+  const loadNotifications = async (userId?: string) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (userId) params.append('userId', userId);
+
+      const response = await fetch(`/api/notifications?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to load notifications');
+
+      const data = await response.json();
+      setNotifications(data.data || []);
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error loading notifications';
+      setError(message);
+      console.error(message, err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const markNotificationRead = async (id: string) => {
     try {
-      console.log(`📝 Marking notification ${id} as read via API...`);
-      await apiCall(`/notifications/${id}/read`, {
+      const response = await fetch(`/api/notifications/${id}/read`, {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
       });
 
-      console.log('✅ Notification marked as read');
-      await loadAllData();
-    } catch (error) {
-      console.error('❌ Failed to mark notification as read:', error);
+      if (!response.ok) throw new Error('Failed to mark notification as read');
+      const data = await response.json();
+      setNotifications(notifications.map(n => n.id === id ? data : n));
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error marking notification as read';
+      setError(message);
+      throw err;
     }
   };
 
-  const addNotification = async (notificationData: Omit<Notification, 'id'>) => {
+  const addNotification = async (notification: Omit<Notification, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      console.log('📝 Adding new notification via API...');
-      await apiCall('/notifications', {
+      const response = await fetch('/api/notifications', {
         method: 'POST',
-        body: JSON.stringify(notificationData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notification)
       });
 
-      console.log('✅ Notification added successfully');
-      await loadAllData();
-    } catch (error) {
-      console.error('❌ Failed to add notification:', error);
+      if (!response.ok) throw new Error('Failed to add notification');
+      const data = await response.json();
+      setNotifications([...notifications, data]);
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error adding notification';
+      setError(message);
+      throw err;
     }
   };
 
-  const addVisitTicket = async (ticket: Omit<AnganwadiVisitTicket, 'id'>) => {
-    setVisitTickets([...visitTickets, { ...ticket, id: `ticket-${Date.now()}` } as AnganwadiVisitTicket]);
-  };
-
-  const updateVisitTicket = async (id: string, updates: Partial<AnganwadiVisitTicket>) => {
-    setVisitTickets(visitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
-  };
-
-  const addMissedVisitTicket = async (ticket: Omit<MissedVisitTicket, 'id'>) => {
-    setMissedVisitTickets([...missedVisitTickets, { ...ticket, id: `missed-${Date.now()}` } as MissedVisitTicket]);
-  };
-
-  const updateMissedVisitTicket = async (id: string, updates: Partial<MissedVisitTicket>) => {
-    setMissedVisitTickets(missedVisitTickets.map(t => t.id === id ? { ...t, ...updates } : t));
-  };
-
-  const addBedRequest = async (request: Omit<BedRequest, 'id'>) => {
-    setBedRequests([...bedRequests, { ...request, id: `req-${Date.now()}` } as BedRequest]);
-  };
-
-  const updateBedRequest = async (id: string, updates: Partial<BedRequest>) => {
-    setBedRequests(bedRequests.map(r => r.id === id ? { ...r, ...updates } : r));
-  };
-
-  const addWorker = async (worker: Omit<Worker, 'id'>) => {
-    setWorkers([...workers, { ...worker, id: `worker-${Date.now()}` } as Worker]);
-  };
-
-  const addAnganwadi = async (anganwadi: Omit<Anganwadi, 'id'>) => {
-    setAnganwadis([...anganwadis, { ...anganwadi, id: `center-${Date.now()}` } as Anganwadi]);
-  };
-
-  const addSurvey = async (survey: Omit<SurveyReport, 'id'>) => {
-    setSurveys([...surveys, { ...survey, id: `survey-${Date.now()}` } as SurveyReport]);
-  };
-
-  const addMedicalRecord = async (record: Omit<MedicalRecord, 'id'>) => {
-    setMedicalRecords([...medicalRecords, { ...record, id: `record-${Date.now()}` } as MedicalRecord]);
-  };
-
-  const addVisit = async (visit: Omit<Visit, 'id'>) => {
-    setVisits([...visits, { ...visit, id: `visit-${Date.now()}` } as Visit]);
-  };
-
-  const updateVisit = async (id: string, updates: Partial<Visit>) => {
-    setVisits(visits.map(v => v.id === id ? { ...v, ...updates } : v));
-  };
-
-  const getPatientMedicalHistory = (patientId: string) => {
-    return medicalRecords.filter(r => r.patientId === patientId);
-  };
-
-  const addTreatmentTracker = async (tracker: Omit<TreatmentTracker, 'id'>) => {
-    setTreatmentTrackers([...treatmentTrackers, { ...tracker, id: `tracker-${Date.now()}` } as TreatmentTracker]);
-  };
-
-  const updateTreatmentTracker = async (id: string, updates: Partial<TreatmentTracker>) => {
-    setTreatmentTrackers(treatmentTrackers.map(tracker =>
-      tracker.id === id ? { ...tracker, ...updates } : tracker
-    ));
-  };
-
+  // Load current user from localStorage on mount
   useEffect(() => {
-    const initializeApp = async () => {
+    const savedUser = localStorage.getItem('currentUser');
+    const savedRole = localStorage.getItem('userRole');
+    const savedLanguage = localStorage.getItem('language') as 'en' | 'hi' | null;
+
+    if (savedLanguage) {
+      setLanguageState(savedLanguage);
+    }
+
+    if (savedUser) {
       try {
-        const storedUser = localStorage.getItem('currentUser');
-        const storedRole = localStorage.getItem('userRole');
-        const loginTime = localStorage.getItem('loginTime');
-
-        if (storedUser && storedRole && loginTime) {
-          const SESSION_DURATION = 24 * 60 * 60 * 1000;
-          const currentTime = new Date().getTime();
-          const elapsed = currentTime - parseInt(loginTime);
-
-          if (elapsed > SESSION_DURATION) {
-            console.log('⏰ Session expired');
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('userRole');
-            localStorage.removeItem('loginTime');
-            localStorage.removeItem('lastActivity');
-            setLoading(false);
-            return;
-          }
-
-          setCurrentUserState(JSON.parse(storedUser));
-          setUserRole(storedRole);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('❌ Failed to initialize app:', error);
-        setError('Failed to initialize application');
-        setLoading(false);
+        const user = JSON.parse(savedUser);
+        setCurrentUserState(user);
+        setUserRoleState(savedRole || user.role);
+      } catch (err) {
+        console.error('Failed to parse saved user:', err);
       }
-    };
-
-    initializeApp();
-  }, []);
-
-  useEffect(() => {
-    if (currentUser && userRole) {
-      loadAllData();
     }
-  }, [currentUser, userRole]);
-
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
-    const WARNING_TIME = 2 * 60 * 1000;
-    let inactivityTimer: NodeJS.Timeout;
-    let warningTimer: NodeJS.Timeout;
-
-    const resetTimer = () => {
-      clearTimeout(inactivityTimer);
-      clearTimeout(warningTimer);
-
-      warningTimer = setTimeout(() => {
-        const shouldContinue = confirm('You will be logged out due to inactivity in 2 minutes. Click OK to stay logged in.');
-        if (shouldContinue) {
-          resetTimer();
-        }
-      }, INACTIVITY_TIMEOUT - WARNING_TIME);
-
-      inactivityTimer = setTimeout(() => {
-        console.log('⏰ Auto-logout due to inactivity');
-        alert('You have been logged out due to inactivity.');
-        logout();
-      }, INACTIVITY_TIMEOUT);
-    };
-
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-
-    events.forEach(event => {
-      document.addEventListener(event, resetTimer);
-    });
-
-    resetTimer();
-
-    return () => {
-      clearTimeout(inactivityTimer);
-      clearTimeout(warningTimer);
-      events.forEach(event => {
-        document.removeEventListener(event, resetTimer);
-      });
-    };
-  }, [currentUser]);
+  }, []);
 
   const value: AppContextType = {
     language,
     setLanguage,
     t,
-
     currentUser,
     userRole,
     setCurrentUser,
     logout,
     hasAccess,
-
     patients,
-    beds,
-    notifications,
-    visits,
-    anganwadis,
-    workers,
-    bedRequests,
-    medicalRecords,
-    surveys,
-    aiPredictions,
-    missedVisitTickets,
-    visitTickets,
-    treatmentTrackers,
-
+    loadPatients,
     addPatient,
     updatePatient,
+    beds,
+    loadBeds,
     updateBed,
+    notifications,
+    loadNotifications,
     markNotificationRead,
     addNotification,
-    addVisitTicket,
-    updateVisitTicket,
-    addMissedVisitTicket,
-    updateMissedVisitTicket,
-    addBedRequest,
-    updateBedRequest,
-    addWorker,
-    addAnganwadi,
-    addSurvey,
-    addMedicalRecord,
-    addVisit,
-    updateVisit,
-    addTreatmentTracker,
-    updateTreatmentTracker,
-    getPatientMedicalHistory,
-
     loading,
-    error,
+    error
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-export const useApp = () => {
+// Export both hooks for compatibility
+export const useAppContext = (): AppContextType => {
   const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error('useApp must be used within an AppProvider');
+  if (!context) {
+    throw new Error('useAppContext must be used within AppProvider');
   }
   return context;
+};
+
+// Alias for backward compatibility
+export const useApp = (): AppContextType => {
+  return useAppContext();
 };
