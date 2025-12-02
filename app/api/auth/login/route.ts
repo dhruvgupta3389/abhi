@@ -39,7 +39,17 @@ export async function POST(request: NextRequest) {
       .eq('is_active', true)
       .single();
 
-    if (queryError || !users) {
+    if (queryError) {
+      console.error('❌ Database query error:', queryError);
+      console.error('Error code:', queryError.code);
+      console.error('Error message:', queryError.message);
+      return NextResponse.json(
+        { error: `Database error: ${queryError.message}` },
+        { status: 500 }
+      );
+    }
+
+    if (!users) {
       console.log('User not found:', username);
       return NextResponse.json(
         { error: 'Invalid credentials' },
