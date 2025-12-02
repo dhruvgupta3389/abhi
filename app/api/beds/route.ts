@@ -1,65 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { csvManager } from '@/lib/csvManager';
-
-async function getBedsFromSupabase(hospitalId?: string, status?: string) {
-  try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) return null;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    let query = supabase.from('beds').select('*');
-
-    if (hospitalId) query = query.eq('hospital_id', hospitalId);
-    if (status) query = query.eq('status', status);
-
-    const { data, error } = await query.order('bed_number', { ascending: true });
-
-    if (error) return null;
-    return data || [];
-  } catch (error) {
-    return null;
-  }
-}
-
-async function createBedInSupabase(bedData: any) {
-  try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) return null;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data, error } = await supabase.from('beds').insert([bedData]).select();
-
-    if (error) return null;
-    return data?.[0] || null;
-  } catch (error) {
-    return null;
-  }
-}
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const hospitalId = searchParams.get('hospitalId') || undefined;
     const status = searchParams.get('status') || undefined;
+    const limit = parseInt(searchParams.get('limit') || '100');
+    const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Try Supabase first
-    let beds = await getBedsFromSupabase(hospitalId, status);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    // Fallback to CSV
-    if (!beds) {
-      beds = csvManager.readCSV('beds.csv') || [];
-      if (hospitalId) beds = beds.filter((b: any) => b.hospital_id === hospitalId);
-      if (status) beds = beds.filter((b: any) => b.status === status);
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
     }
 
-    console.log(`✅ Fetched ${beds.length} beds`);
-    return NextResponse.json(beds, { status: 200 });
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    let query = supabase.from('beds').select('*');
+
+    if (hospitalId) {
+      query = query.eq('hospital_id', hospitalId);
+    }
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: beds, error, count } = await query
+      .order('bed_number', { ascending: true })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('❌ Error fetching beds:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch beds' },
+        { status: 500 }
+      );
+    }
+
+    console.log(`✅ Fetched ${beds?.length || 0} beds`);
+    return NextResponse.json(
+      {
+        data: beds || [],
+        total: count || 0,
+        count: beds?.length || 0
+      },
+      { status: 200 }
+    );
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(
@@ -72,6 +63,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const bedData = {
       hospital_id: body.hospitalId,
@@ -86,22 +89,22 @@ export async function POST(request: NextRequest) {
       hospital_name: body.hospitalName || null
     };
 
-    // Try Supabase first
-    let result = await createBedInSupabase(bedData);
+    const { data, error } = await supabase
+      .from('beds')
+      .insert([bedData])
+      .select()
+      .single();
 
-    // Fallback to CSV
-    if (!result) {
-      const csvData = { id: `bed-${Date.now()}`, ...bedData };
-      const success = csvManager.writeToCSV('beds.csv', csvData);
-      result = success ? csvData : null;
+    if (error) {
+      console.error('❌ Error creating bed:', error);
+      return NextResponse.json(
+        { error: 'Failed to create bed' },
+        { status: 500 }
+      );
     }
 
-    if (result) {
-      console.log('✅ Bed created successfully:', result.id);
-      return NextResponse.json(result, { status: 201 });
-    } else {
-      throw new Error('Failed to create bed');
-    }
+    console.log(`✅ Bed created: ${data.id}`);
+    return NextResponse.json(data, { status: 201 });
   } catch (err) {
     console.error('❌ Unexpected error:', err);
     return NextResponse.json(
