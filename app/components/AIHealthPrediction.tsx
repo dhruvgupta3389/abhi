@@ -8,8 +8,8 @@ const AIHealthPrediction: React.FC = () => {
   const { patients, t } = useApp();
   const [selectedPatient, setSelectedPatient] = useState<string>('');
 
-  const riskPatients = patients.filter(p => p.riskScore && p.riskScore >= 70);
-  const selectedPatientData = selectedPatient ? patients.find(p => p.id === selectedPatient) : null;
+  const riskPatients = patients?.filter(p => p.risk_score && p.risk_score >= 70) || [];
+  const selectedPatientData = selectedPatient ? patients?.find(p => p.id === selectedPatient) : null;
 
   return (
     <div className="space-y-6">
