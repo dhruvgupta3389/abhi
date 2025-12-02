@@ -234,7 +234,7 @@ const AdminPanel: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={formData.is_active}
-                      onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                      onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
                       className="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
                     <span className="text-sm text-gray-700">Active User</span>
