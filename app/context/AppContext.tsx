@@ -501,6 +501,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     loadNotifications,
     markNotificationRead,
     addNotification,
+    visits,
+    loadVisits,
     loading,
     error
   };
