@@ -5,7 +5,8 @@ import * as bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, password, employee_id } = body;
+    const username = body.username?.trim()?.toLowerCase();
+    const password = body.password;
 
     if (!username || !password) {
       return NextResponse.json(
@@ -24,25 +25,35 @@ export async function POST(request: NextRequest) {
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('❌ Supabase not configured');
       return NextResponse.json(
-        { error: 'Database not configured. Please check Supabase setup.' },
+        { error: 'Database not configured' },
         { status: 500 }
       );
     }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // Query users table
+    // ----------------------------------------------------------
+    // 🔍 DEBUG QUERY — Check if username exists at all
+    // ----------------------------------------------------------
+    const debugUser = await supabase.from('users').select('*').eq('username', username);
+    console.log('🔎 DEBUG — username match only:', debugUser.data);
+    console.log('🔎 DEBUG ERROR:', debugUser.error);
+
+    // ----------------------------------------------------------
+    // MAIN USER QUERY
+    // ----------------------------------------------------------
     const { data: users, error: queryError } = await supabase
       .from('users')
       .select('*')
       .eq('username', username)
-      .eq('is_active', true)
-      .single();
+      // REMOVE is_active filter for testing — add back later if needed
+      // .eq('is_active', true)
+      .maybeSingle();
+
+    console.log('📌 Query result:', users);
 
     if (queryError) {
       console.error('❌ Database query error:', queryError);
-      console.error('Error code:', queryError.code);
-      console.error('Error message:', queryError.message);
       return NextResponse.json(
         { error: `Database error: ${queryError.message}` },
         { status: 500 }
@@ -50,14 +61,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (!users) {
-      console.log('User not found:', username);
+      console.log('❌ No user found with username:', username);
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Invalid credentials – user not found' },
         { status: 401 }
       );
     }
 
-    // Verify password using bcryptjs
+    // ----------------------------------------------------------
+    // PASSWORD CHECK
+    // ----------------------------------------------------------
     let passwordMatch = false;
     try {
       passwordMatch = await bcrypt.compare(password, users.password_hash);
@@ -70,14 +83,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (!passwordMatch) {
-      console.log('Password mismatch for user:', username);
+      console.log('❌ Password mismatch for:', username);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    // Return user data without password
+    // ----------------------------------------------------------
+    // LOGIN SUCCESS
+    // ----------------------------------------------------------
     const userResponse = {
       id: users.id,
       employee_id: users.employee_id,
@@ -85,10 +100,9 @@ export async function POST(request: NextRequest) {
       name: users.name,
       role: users.role,
       email: users.email,
-      contact_number: users.contact_number
+      contact_number: users.contact_number,
     };
 
-    // Generate a simple token (user ID + timestamp)
     const token = `${users.id}:${Date.now()}`;
 
     console.log(`✅ User logged in: ${username} (Role: ${users.role})`);
@@ -97,18 +111,17 @@ export async function POST(request: NextRequest) {
         success: true,
         user: userResponse,
         token: token,
-        message: 'Login successful'
+        message: 'Login successful',
       },
       { status: 200 }
     );
   } catch (err) {
     console.error('❌ Login error:', err);
-    if (err instanceof Error) {
-      console.error('Error message:', err.message);
-      console.error('Error stack:', err.stack);
-    }
     return NextResponse.json(
-      { error: 'Internal server error', details: err instanceof Error ? err.message : 'Unknown error' },
+      {
+        error: 'Internal server error',
+        details: err instanceof Error ? err.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
