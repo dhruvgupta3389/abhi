@@ -1,7 +1,0 @@
-id,hospital_id,number,ward,status,patient_id,admission_date,created_at,updated_at
-cff5465f-e7dd-4edf-bdf3-5cff3efe18db,HOSP001,101,Pediatric,available,,,2025-11-05T05:46:32.851Z,2025-11-05T05:46:32.851Z
-962ff764-9d0e-4f05-80e3-30c51a482a10,HOSP001,102,Pediatric,available,,,2025-11-05T05:46:32.851Z,2025-11-05T05:46:32.851Z
-2a325d4e-9a15-4d27-9a55-0afe143cd88c,HOSP001,103,Pediatric,maintenance,,,2025-11-05T05:46:32.851Z,2025-11-05T05:46:32.851Z
-8f3c342d-7ea2-4b8c-ace2-4e10be3ab7f8,HOSP001,201,Maternity,available,,,2025-11-05T05:46:32.851Z,2025-11-05T05:46:32.851Z
-93216848-f5fe-427e-8132-48e22d6ae7cf,HOSP001,202,Maternity,occupied,,2024-01-15,2025-11-05T05:46:32.851Z,2025-11-05T05:46:32.851Z
-1bfcbb76-971f-47f3-91d6-22de2e524ef1,HOSP001,203,Maternity,available,,,2025-11-05T05:46:32.851Z,2025-11-05T05:46:32.851Z
