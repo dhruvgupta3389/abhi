@@ -60,7 +60,7 @@ const AIHealthPrediction: React.FC = () => {
             <option value="">Choose a patient...</option>
             {patients.map(patient => (
               <option key={patient.id} value={patient.id}>
-                {patient.name} - Risk: {patient.riskScore || 0}%
+                {patient.name} - Risk: {patient.risk_score || 0}%
               </option>
             ))}
           </select>
@@ -76,17 +76,17 @@ const AIHealthPrediction: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <span className="text-sm text-gray-700">Nutrition Status</span>
-                  <span className="text-sm font-medium text-red-600">{selectedPatientData.nutritionStatus}</span>
+                  <span className="text-sm font-medium text-red-600">{selectedPatientData.nutrition_status}</span>
                 </div>
                 <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <span className="text-sm text-gray-700">Overall Risk Score</span>
-                  <span className="text-sm font-medium text-red-600">{selectedPatientData.riskScore || 0}%</span>
+                  <span className="text-sm font-medium text-red-600">{selectedPatientData.risk_score || 0}%</span>
                 </div>
-                {selectedPatientData.nutritionalDeficiency && selectedPatientData.nutritionalDeficiency.length > 0 && (
+                {selectedPatientData.nutritional_deficiency && selectedPatientData.nutritional_deficiency.length > 0 && (
                   <div className="p-3 bg-red-50 rounded">
                     <p className="text-xs font-medium text-red-700">Deficiencies:</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {selectedPatientData.nutritionalDeficiency.map((def: string, idx: number) => (
+                      {selectedPatientData.nutritional_deficiency.map((def: string, idx: number) => (
                         <span key={idx} className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">
                           {def}
                         </span>
