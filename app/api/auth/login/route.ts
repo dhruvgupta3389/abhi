@@ -17,9 +17,14 @@ export async function POST(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+    console.log('🔍 Login attempt for:', username);
+    console.log('📍 Supabase URL configured:', !!supabaseUrl);
+    console.log('🔑 Supabase Key configured:', !!supabaseAnonKey);
+
     if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Supabase not configured');
       return NextResponse.json(
-        { error: 'Supabase configuration missing' },
+        { error: 'Database not configured. Please check Supabase setup.' },
         { status: 500 }
       );
     }
