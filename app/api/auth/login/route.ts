@@ -103,8 +103,12 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     console.error('❌ Login error:', err);
+    if (err instanceof Error) {
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: err instanceof Error ? err.message : 'Unknown error' },
       { status: 500 }
     );
   }
