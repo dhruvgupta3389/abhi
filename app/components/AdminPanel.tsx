@@ -113,8 +113,18 @@ const AdminPanel: React.FC = () => {
           body: JSON.stringify(payload),
         });
 
+        let errorData: any = {};
+        const responseText = await response.text();
+
+        if (responseText) {
+          try {
+            errorData = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error('Failed to parse response:', parseError);
+          }
+        }
+
         if (!response.ok) {
-          const errorData = await response.json();
           throw new Error(errorData.error || `Failed to ${user ? 'update' : 'create'} user`);
         }
 
