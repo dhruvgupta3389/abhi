@@ -14,10 +14,10 @@ const PostHospitalizationTracker: React.FC = () => {
 
   const AddTrackerForm = () => {
     const [formData, setFormData] = useState({
-      patientId: '',
-      hospitalId: 'HOSP001',
-      treatmentPlan: '',
-      doctorRemarks: '',
+      patient_id: '',
+      hospital_id: 'HOSP001',
+      treatment_plan: '',
+      doctor_remarks: '',
       weight: '',
       appetite: 'moderate' as 'poor' | 'moderate' | 'good',
       notes: '',
@@ -26,19 +26,19 @@ const PostHospitalizationTracker: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       addTreatmentTracker({
-        patientId: formData.patient_id,
-        hospitalId: formData.hospital_id,
-        admissionDate: new Date().toISOString().split('T')[0],
-        treatmentPlan: formData.treatmentPlan.split(',').map(t => t.trim()).filter(t => t),
-        medicineSchedule: [],
-        doctorRemarks: formData.doctorRemarks.split(',').map(r => r.trim()).filter(r => r),
-        dailyProgress: [{
+        patient_id: formData.patient_id,
+        hospital_id: formData.hospital_id,
+        admission_date: new Date().toISOString().split('T')[0],
+        treatment_plan: formData.treatment_plan.split(',').map(t => t.trim()).filter(t => t),
+        medicine_schedule: [],
+        doctor_remarks: formData.doctor_remarks.split(',').map(r => r.trim()).filter(r => r),
+        daily_progress: [{
           date: new Date().toISOString().split('T')[0],
           weight: parseFloat(formData.weight),
           appetite: formData.appetite,
           notes: formData.notes,
         }],
-        labReports: [],
+        lab_reports: [],
       });
       setShowAddForm(false);
     };
