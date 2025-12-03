@@ -561,6 +561,66 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  // Treatment Tracker Operations
+  const loadTreatmentTrackers = async (patientId?: string) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (patientId) params.append('patientId', patientId);
+
+      const response = await fetch(`/api/treatment-trackers?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to load treatment trackers');
+
+      const data = await response.json();
+      setTreatmentTrackers(data.data || []);
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error loading treatment trackers';
+      setError(message);
+      console.error(message, err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addTreatmentTracker = async (tracker: Omit<TreatmentTracker, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const response = await fetch('/api/treatment-trackers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tracker)
+      });
+
+      if (!response.ok) throw new Error('Failed to add treatment tracker');
+      const data = await response.json();
+      setTreatmentTrackers([...treatmentTrackers, data]);
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error adding treatment tracker';
+      setError(message);
+      throw err;
+    }
+  };
+
+  const updateTreatmentTracker = async (id: string, updates: Partial<TreatmentTracker>) => {
+    try {
+      const response = await fetch(`/api/treatment-trackers/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+
+      if (!response.ok) throw new Error('Failed to update treatment tracker');
+      const data = await response.json();
+      setTreatmentTrackers(treatmentTrackers.map(tracker => tracker.id === id ? data : tracker));
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error updating treatment tracker';
+      setError(message);
+      throw err;
+    }
+  };
+
   // Load current user from localStorage on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
