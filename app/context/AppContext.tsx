@@ -668,6 +668,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     loadBedRequests,
     addBedRequest,
     updateBedRequest,
+    treatmentTrackers,
+    loadTreatmentTrackers,
+    addTreatmentTracker,
+    updateTreatmentTracker,
     loading,
     error
   };
