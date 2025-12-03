@@ -55,7 +55,7 @@ const PostHospitalizationTracker: React.FC = () => {
               <select
                 required
                 value={formData.patient_id}
-                onChange={(e) => setFormData({...formData, patientId: e.target.value})}
+                onChange={(e) => setFormData({...formData, patient_id: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">{t('patient.selectPatient')}</option>
@@ -71,7 +71,7 @@ const PostHospitalizationTracker: React.FC = () => {
               <textarea
                 required
                 value={formData.treatmentPlan}
-                onChange={(e) => setFormData({...formData, treatmentPlan: e.target.value})}
+                onChange={(e) => setFormData({...formData, treatment_plan: e.target.value})}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Therapeutic feeding, Iron supplementation, Regular monitoring"
@@ -81,7 +81,7 @@ const PostHospitalizationTracker: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Doctor Remarks (comma separated)</label>
               <textarea
                 value={formData.doctorRemarks}
-                onChange={(e) => setFormData({...formData, doctorRemarks: e.target.value})}
+                onChange={(e) => setFormData({...formData, doctor_remarks: e.target.value})}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Patient responding well, Continue current treatment"
