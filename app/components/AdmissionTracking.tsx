@@ -79,7 +79,7 @@ const AdmissionTracking: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">
-                    Bed {bed?.number} • {bed?.ward}
+                    Bed {bed?.bed_number} • {bed?.ward}
                   </p>
                   <div className="flex items-center space-x-1 mt-1 text-sm text-gray-600">
                     <Calendar className="w-3 h-3" />
