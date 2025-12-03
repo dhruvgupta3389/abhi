@@ -135,6 +135,12 @@ interface AppContextType {
   visits: Visit[];
   loadVisits: (patientId?: string) => Promise<void>;
 
+  // Bed Requests
+  bedRequests: BedRequest[];
+  loadBedRequests: () => Promise<void>;
+  addBedRequest: (request: Omit<BedRequest, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateBedRequest: (id: string, updates: Partial<BedRequest>) => Promise<void>;
+
   loading: boolean;
   error: string | null;
 }
