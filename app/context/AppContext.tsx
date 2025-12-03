@@ -320,30 +320,44 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           name: patient.name,
           age: patient.age,
           type: patient.type,
-          pregnancy_week: patient.pregnancy_week,
-          contact_number: patient.contact_number,
-          emergency_contact: patient.emergency_contact,
+          pregnancyWeek: patient.pregnancy_week,
+          contactNumber: patient.contact_number,
+          emergencyContact: patient.emergency_contact,
           address: patient.address,
           weight: patient.weight,
           height: patient.height,
-          blood_pressure: patient.blood_pressure,
+          bloodPressure: patient.blood_pressure,
           temperature: patient.temperature,
           hemoglobin: patient.hemoglobin,
-          nutrition_status: patient.nutrition_status,
-          medical_history: patient.medical_history || [],
+          nutritionStatus: patient.nutrition_status,
+          medicalHistory: patient.medical_history || [],
           symptoms: patient.symptoms || [],
           remarks: patient.remarks,
-          risk_score: patient.risk_score,
-          nutritional_deficiency: patient.nutritional_deficiency || [],
-          registered_by: currentUser?.id,
-          aadhaar_number: patient.aadhaar_number,
-          last_visit_date: patient.last_visit_date,
-          next_visit_date: patient.next_visit_date
+          riskScore: patient.risk_score,
+          nutritionalDeficiency: patient.nutritional_deficiency || [],
+          registeredBy: currentUser?.id,
+          aadhaarNumber: patient.aadhaar_number,
+          lastVisitDate: patient.last_visit_date,
+          nextVisitDate: patient.next_visit_date
         })
       });
 
-      if (!response.ok) throw new Error('Failed to add patient');
-      const data = await response.json();
+      let errorData: any = {};
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          errorData = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse response:', parseError);
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(errorData.error || 'Failed to add patient');
+      }
+
+      const data = errorData;
       setPatients([...patients, data]);
       setError(null);
       return data;
