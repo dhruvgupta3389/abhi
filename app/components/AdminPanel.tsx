@@ -29,13 +29,24 @@ const AdminPanel: React.FC = () => {
     try {
       setLoading(true);
       console.log('🔄 Loading users from database...');
-      
+
       const response = await fetch('/api/auth/users');
+
+      let usersData: User[] = [];
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          usersData = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse users response:', parseError);
+        }
+      }
+
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }
-      
-      const usersData = await response.json();
+
       setUsers(usersData);
       console.log('✅ Users loaded successfully:', usersData.length);
     } catch (err) {
