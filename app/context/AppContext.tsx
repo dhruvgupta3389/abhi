@@ -582,6 +582,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addNotification,
     visits,
     loadVisits,
+    bedRequests,
+    loadBedRequests,
+    addBedRequest,
+    updateBedRequest,
     loading,
     error
   };
