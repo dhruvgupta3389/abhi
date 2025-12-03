@@ -101,6 +101,21 @@ export interface BedRequest {
   updated_at: string;
 }
 
+export interface TreatmentTracker {
+  id: string;
+  patient_id: string;
+  hospital_id: string;
+  admission_date: string;
+  discharge_date?: string;
+  treatment_plan: string[];
+  medicine_schedule: Array<{ medicine: string; dosage: string; frequency: string }>;
+  doctor_remarks: string[];
+  daily_progress: Array<{ date: string; weight?: number; appetite?: string; notes?: string }>;
+  lab_reports: Array<{ date: string; type: string; results: string }>;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AppContextType {
   // Language & Localization
   language: 'en' | 'hi';
