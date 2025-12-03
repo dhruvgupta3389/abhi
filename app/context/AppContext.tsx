@@ -86,6 +86,21 @@ export interface Visit {
   updated_at: string;
 }
 
+export interface BedRequest {
+  id: string;
+  patient_id: string;
+  urgency_level: 'low' | 'medium' | 'high' | 'critical';
+  medical_justification: string;
+  current_condition: string;
+  estimated_stay_duration: number;
+  special_requirements?: string;
+  requested_by: string;
+  request_date: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+}
+
 interface AppContextType {
   // Language & Localization
   language: 'en' | 'hi';
